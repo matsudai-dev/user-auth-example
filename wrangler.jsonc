@@ -1,0 +1,18 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "user-auth-example",
+	"main": "./dist/index.js",
+	"compatibility_date": "2026-01-21",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"directory": "./dist"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "user-auth-example-db",
+			"database_id": "xxx",
+			"migrations_dir": "./app/db/drizzle"
+		}
+	]
+}

@@ -1,0 +1,13 @@
+*.pem
+*.ppk
+.dev.vars
+.env*
+!.env.example
+
+.wrangler/
+dist/
+node_modules/
+playwright-report/
+test-results/
+
+vite.config.*.timestamp*

@@ -1,0 +1,26 @@
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+	testDir: "./e2e",
+	fullyParallel: true,
+	forbidOnly: !!process.env.CI,
+	retries: process.env.CI ? 2 : 0,
+	workers: process.env.CI ? 1 : undefined,
+	reporter: [["html", { open: "never" }]],
+	use: {
+		headless: true,
+	},
+	projects: [
+		{
+			name: "chromium",
+			use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:8787" },
+		},
+	],
+	webServer: {
+		command: "bun run preview",
+		port: 8787,
+		stdout: "pipe",
+		stderr: "pipe",
+		reuseExistingServer: !process.env.CI,
+	},
+});
