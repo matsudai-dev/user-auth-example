@@ -71,11 +71,14 @@ All commands should be run inside the Docker container. From the host OS, prefix
 
 ### Validation
 - Use `@hono/standard-validator` with Zod schemas
-- Define validators before route handlers using `sValidator`
+- Define validators as separate variables (e.g., `const jsonValidator = sValidator(...)` ) before the route handler
 - Return appropriate HTTP status codes in validation error handlers (e.g., 400 for bad requests)
 
+### Constants ( `@/consts` )
+- Define status message constants (e.g., `BAD_REQUEST` , `CONFLICT` , `OK` )
+- Define duration constants in milliseconds (e.g., `SIGNUP_SESSION_EXPIRATION_MS` )
+
 ### Error handling
-- Define status message constants in `@/consts` (e.g., `BAD_REQUEST` , `CONFLICT`, `OK` )
 - Use `c.text(MESSAGE, statusCode)` for responses
 - Apply `injectExternalErrors` middleware to handle external service errors
 - Common status codes:
@@ -94,6 +97,12 @@ All commands should be run inside the Docker container. From the host OS, prefix
 ### Date Utilities ( `@/utils/date` )
 
 - `offsetMilliSeconds(date: Date, ms: number): Date`
+
+### Crypto Utilities ( `@/utils/crypto/server` )
+
+- `generateUuidv7(): string` - Generates a time-ordered UUIDv7 for database primary keys
+- `generateSecureToken(bytes?: number): string` - Generates a URL-safe base64 encoded random token
+- `hashToken(token: string): string` - Hashes a token using SHA-256 for secure storage
 
 ## Testing instructions
 1. add the function
