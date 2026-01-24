@@ -124,10 +124,14 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 - Apply appropriate labels: `bug`, `enhancement`, `documentation`, `question`, etc.
 
 ### Working on an issue
-1. Create and checkout a new branch named `feature/#n` from the `main` branch (where `#n` is the issue number)
-2. Implement following the TDD practices described above
-3. Create a pull request using `gh` command (do not use browser)
-    - Example: `gh pr create --title "..." --body "..." --base main --head feature/#n`
+1. Create issue using `gh issue create`
+2. Create and checkout a new branch named `feature/#n` from the `main` branch (where `#n` is the issue number)
+3. Implement the feature
+4. Run all checks: `bun run biome && bun run tsc && bun run test:unit && bun run test:e2e`
+5. Commit changes with `Closes #n` in the commit message to auto-close the issue on merge
+6. Push the branch: `git push -u origin feature/#n`
+7. Create a pull request using `gh pr create --base main --head feature/#n`
+8. After PR is merged, delete the remote branch
 
 ### Commit messages
 - Use conventional commit format with lowercase prefixes (e.g., "feat:", "fix:", "chore:")
