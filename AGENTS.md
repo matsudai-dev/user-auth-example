@@ -135,9 +135,10 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 
 ### Release workflow
 1. Create a `release/X.Y.Z` branch from `main`
-2. Merge feature branches into `release/X.Y.Z`
-3. When ready, create a PR to merge `release/X.Y.Z` into `main`
-4. After PR is merged into `main`, create a tag and release: `git tag vX.Y.Z && git push origin vX.Y.Z && gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
+2. Update `version` in `package.json` to `X.Y.Z` and commit
+3. Merge feature branches into `release/X.Y.Z`
+4. When ready, create a PR to merge `release/X.Y.Z` into `main`
+5. After PR is merged into `main`, create a tag and release: `git tag vX.Y.Z && git push origin vX.Y.Z && gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
 
 ### Commit messages
 - Use conventional commit format with lowercase prefixes (e.g., "feat:", "fix:", "chore:")
