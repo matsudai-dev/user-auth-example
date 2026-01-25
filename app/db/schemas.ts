@@ -34,3 +34,15 @@ export const signupSessionsTable = sqliteTable("signup_sessions", {
 	/** Expiration timestamp */
 	expiresAt: timestamp("expires_at").notNull(),
 });
+
+/** `login_rate_limits` table schema definition */
+export const loginRateLimitsTable = sqliteTable("login_rate_limits", {
+	/** Email address (primary key) */
+	email: text("email").primaryKey(),
+	/** Number of failed login attempts */
+	failedAttempts: integer("failed_attempts").notNull().default(0),
+	/** Timestamp until the account is locked */
+	lockedUntil: timestamp("locked_until"),
+	/** Expiration timestamp for this rate limit record */
+	expiresAt: timestamp("expires_at").notNull(),
+});
