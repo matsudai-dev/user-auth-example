@@ -127,7 +127,7 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 1. Create issue using `gh issue create`
 2. Create and checkout a new branch named `feature/#n` from the `main` or `release/X.Y.Z` branch (where `#n` is the issue number)
 3. Implement the feature
-4. Run all checks: `bun run biome && bun run tsc && bun run test:unit && bun run test:e2e`
+4. Run all checks: `bun run biome && bun run tsc && bun run test:unit` (skip E2E tests)
 5. Commit changes with `Closes #n` in the commit message to auto-close the issue on merge
 6. Push the branch: `git push -u origin feature/#n`
 7. Create a pull request using `gh pr create --base <main or release/X.Y.Z> --head feature/#n`

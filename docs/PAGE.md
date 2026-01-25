@@ -2,10 +2,28 @@
 
 ## Table of Contents
 - [Pages](#Pages)
+    - [`/login`](#login) : User login page
     - [`/signup`](#signup) : User registration page
     - [`/signup/verify`](#signupverify) : Password setup page after email verification
 
 ## Pages
+
+### `/login`
+
+User login page for email/password authentication.
+
+#### Components
+- Email input field
+- Password input field
+- Login button
+
+#### Behavior
+1. User enters their email address
+2. User enters their password
+3. User clicks the login button
+4. Calls `POST /api/v1/login` with email and password
+5. On success (200): Redirects to `/`
+6. On error: Displays appropriate error message
 
 ### `/signup`
 
