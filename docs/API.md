@@ -4,6 +4,7 @@
 - [Endpoints](#Endpoints)
     - [`POST /api/v1/signup`](#POST-apiv1signup) : Create a new user account and send a verification email.
     - [`POST /api/v1/signup/verify`](#POST-apiv1signupverify) : Verify signup session and create user account.
+    - [`POST /api/v1/login`](#POST-apiv1login) : Authenticate user and issue JWT.
 
 ## Endpoints
 
@@ -45,5 +46,25 @@ type ResponseText = "OK" | "Bad Request" | "Conflict"
 3. Returns `400 Bad Request` if the signup session token is invalid or expired
 4. Returns `409 Conflict` if the email address (from signup_sessions) is already registered in users table
 5. Creates a new user in the `users` table with hashed password
+6. Issues a JWT and sets it as an HTTP-only cookie
+7. Returns `200 OK`
+
+### `POST /api/v1/login`
+
+```ts
+type RequestJSON = {
+    email: string;
+    password: string;
+}
+
+type ResponseText = "OK" | "Bad Request" | "Not Found" | "Unauthorized" | "Too Many Requests"
+```
+
+#### Flow
+1. Returns `400 Bad Request` if the request body is not valid JSON or email format is invalid
+2. Returns `404 Not Found` if the user does not exist
+3. Returns `429 Too Many Requests` if login attempts exceed the threshold
+4. Returns `401 Unauthorized` if the password is incorrect (increments failed attempts)
+5. Resets failed attempts on successful login
 6. Issues a JWT and sets it as an HTTP-only cookie
 7. Returns `200 OK`
