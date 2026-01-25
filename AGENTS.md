@@ -125,13 +125,19 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 
 ### Working on an issue
 1. Create issue using `gh issue create`
-2. Create and checkout a new branch named `feature/#n` from the `main` branch (where `#n` is the issue number)
+2. Create and checkout a new branch named `feature/#n` from the `main` or `release/X.Y.Z` branch (where `#n` is the issue number)
 3. Implement the feature
 4. Run all checks: `bun run biome && bun run tsc && bun run test:unit && bun run test:e2e`
 5. Commit changes with `Closes #n` in the commit message to auto-close the issue on merge
 6. Push the branch: `git push -u origin feature/#n`
-7. Create a pull request using `gh pr create --base main --head feature/#n`
+7. Create a pull request using `gh pr create --base <main or release/X.Y.Z> --head feature/#n`
 8. After PR is merged, delete the remote branch
+
+### Release workflow
+1. Create a `release/X.Y.Z` branch from `main`
+2. Merge feature branches into `release/X.Y.Z`
+3. When ready, create a PR to merge `release/X.Y.Z` into `main`
+4. After PR is merged into `main`, create a tag and release: `git tag vX.Y.Z && git push origin vX.Y.Z && gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
 
 ### Commit messages
 - Use conventional commit format with lowercase prefixes (e.g., "feat:", "fix:", "chore:")
