@@ -24,3 +24,5 @@ RUN curl -fsSL https://bun.sh/install | bash
 
 RUN bun install -g wrangler \
     && bunx playwright install --with-deps
+
+RUN bun install -g @anthropic-ai/claude-code
