@@ -8,13 +8,27 @@ import {
 	LOGIN_RATE_LIMIT_EXPIRATION_MS,
 	NOT_FOUND,
 	OK,
+	REFRESH_TOKEN_EXPIRATION_MS,
 	TOO_MANY_REQUESTS,
 	UNAUTHORIZED,
 } from "@/consts";
 import { getDBClient } from "@/db/client";
-import { loginRateLimitsTable, usersTable } from "@/db/schemas";
-import { generateAccessToken, setAccessTokenCookie } from "@/utils/cookie";
-import { hashPassword } from "@/utils/crypto/server";
+import {
+	loginRateLimitsTable,
+	loginSessionsTable,
+	usersTable,
+} from "@/db/schemas";
+import {
+	generateAccessToken,
+	setAccessTokenCookie,
+	setRefreshTokenCookie,
+} from "@/utils/cookie";
+import {
+	generateSecureToken,
+	generateUuidv7,
+	hashPassword,
+	hashToken,
+} from "@/utils/crypto/server";
 import { offsetMilliSeconds } from "@/utils/date";
 import { createHonoApp } from "@/utils/factory/hono";
 
@@ -117,12 +131,28 @@ export const route = createHonoApp().post("/", jsonValidator, async (c) => {
 		.delete(loginRateLimitsTable)
 		.where(eq(loginRateLimitsTable.email, email));
 
-	const token = await generateAccessToken(
+	const accessToken = await generateAccessToken(
 		user.id,
 		user.email,
 		c.env.JWT_SECRET,
 	);
-	setAccessTokenCookie(c, token);
+	setAccessTokenCookie(c, accessToken);
+
+	const refreshToken = generateSecureToken();
+	const refreshTokenHash = hashToken(refreshToken);
+	const sessionId = generateUuidv7();
+	const userAgent = c.req.header("User-Agent") ?? null;
+	const expiresAt = offsetMilliSeconds(now, REFRESH_TOKEN_EXPIRATION_MS);
+
+	await db.insert(loginSessionsTable).values({
+		id: sessionId,
+		userId: user.id,
+		refreshTokenHash,
+		userAgent,
+		expiresAt,
+	});
+
+	setRefreshTokenCookie(c, refreshToken);
 
 	return c.text(OK, 200);
 });
