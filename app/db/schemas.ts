@@ -34,3 +34,33 @@ export const signupSessionsTable = sqliteTable("signup_sessions", {
 	/** Expiration timestamp */
 	expiresAt: timestamp("expires_at").notNull(),
 });
+
+/** `login_rate_limits` table schema definition */
+export const loginRateLimitsTable = sqliteTable("login_rate_limits", {
+	/** Email address (primary key) */
+	email: text("email").primaryKey(),
+	/** Number of failed login attempts */
+	failedAttempts: integer("failed_attempts").notNull().default(0),
+	/** Timestamp until the account is locked */
+	lockedUntil: timestamp("locked_until"),
+	/** Expiration timestamp for this rate limit record */
+	expiresAt: timestamp("expires_at").notNull(),
+});
+
+/** `login_sessions` table schema definition */
+export const loginSessionsTable = sqliteTable("login_sessions", {
+	/** UUIDv7 */
+	id: text("id").primaryKey(),
+	/** User ID (foreign key to users table) */
+	userId: text("user_id").notNull(),
+	/** SHA-256 hash of the refresh token */
+	refreshTokenHash: text("refresh_token_hash").notNull().unique(),
+	/** Client user agent string */
+	userAgent: text("user_agent"),
+	/** Timestamp of session creation */
+	createdAt: timestamp("created_at").notNull().default(now()),
+	/** Timestamp of last access */
+	lastAccessedAt: timestamp("last_accessed_at").notNull().default(now()),
+	/** Expiration timestamp */
+	expiresAt: timestamp("expires_at").notNull(),
+});

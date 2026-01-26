@@ -79,3 +79,33 @@ export function generateSecureToken(bytes = 32): string {
 export function hashToken(token: string): string {
 	return createHash("sha256").update(token).digest("hex");
 }
+
+/**
+ * Generates a cryptographically secure random salt for password hashing.
+ *
+ * @param bytes - Number of random bytes to generate (default: 16)
+ * @returns Hexadecimal string representation of the salt
+ *
+ * @example
+ * const salt = generateSalt();
+ * // => "a1b2c3d4e5f6..."
+ */
+export function generateSalt(bytes = 16): string {
+	return randomBytes(bytes).toString("hex");
+}
+
+/**
+ * Hashes a password with a salt using SHA-256.
+ *
+ * @param password - The password to hash
+ * @param salt - The salt to use for hashing
+ * @returns Hexadecimal string representation of the hashed password
+ *
+ * @example
+ * const salt = generateSalt();
+ * const hash = hashPassword("myPassword123", salt);
+ * // Store both salt and hash in database
+ */
+export function hashPassword(password: string, salt: string): string {
+	return createHash("sha256").update(`${salt}${password}`).digest("hex");
+}

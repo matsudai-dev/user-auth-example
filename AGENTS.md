@@ -22,7 +22,14 @@ This is a user authentication sample application.
 ### Available commands
 All commands should be run inside the Docker container. From the host OS, prefix commands with:
 
-`docker exec -it user-auth-app bash -c "..."`
+`docker exec user-auth-app bash -c "..."`
+
+(Note: Use `docker exec` without `-it` flags when running from non-TTY environments)
+
+**Quick check (run before committing):**
+```
+docker exec user-auth-app bash -c "bun run biome && bun run tsc && bun run test:unit"
+```
 
 - `bun run biome` - Run Biome linter/formatter
 - `bun run tsc` - Run TypeScript type checker
@@ -57,6 +64,7 @@ All commands should be run inside the Docker container. From the host OS, prefix
 - Prefer immutability (const over let, avoid mutations)
 - Write declarative code over imperative code
 - Use generic syntax for array types ( `Array<string>` ) instead of shorthand ( `string[]` )
+- Never use non-null assertions ( `!` ). Use if statements or other type guards to narrow types, even if it adds redundancy
 
 ### Import organization
 - Biome automatically sorts imports A-Z, so no need to manually order them
@@ -68,6 +76,10 @@ All commands should be run inside the Docker container. From the host OS, prefix
 - Export route as named export: `export const route = ...`
 - Also include default export: `export default route`
 - Apply middleware in order: validator, error handler, main handler
+
+### Middleware
+- Use `createMiddleware<Env>` from `hono/factory` to create middleware functions
+- Use factory function pattern with hooks for flexible error handling (e.g., `loginRequired((result, c) => { ... })` )
 
 ### Validation
 - Use `@hono/standard-validator` with Zod schemas
@@ -125,13 +137,20 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 
 ### Working on an issue
 1. Create issue using `gh issue create`
-2. Create and checkout a new branch named `feature/#n` from the `main` branch (where `#n` is the issue number)
+2. Create and checkout a new branch named `feature/#n` from the `main` or `release/X.Y.Z` branch (where `#n` is the issue number)
 3. Implement the feature
-4. Run all checks: `bun run biome && bun run tsc && bun run test:unit && bun run test:e2e`
+4. Run all checks: `bun run biome && bun run tsc && bun run test:unit` (skip E2E tests)
 5. Commit changes with `Closes #n` in the commit message to auto-close the issue on merge
 6. Push the branch: `git push -u origin feature/#n`
-7. Create a pull request using `gh pr create --base main --head feature/#n`
+7. Create a pull request using `gh pr create --base <main or release/X.Y.Z> --head feature/#n`
 8. After PR is merged, delete the remote branch
+
+### Release workflow
+1. Create a `release/X.Y.Z` branch from `main`
+2. Update `version` in `package.json` to `X.Y.Z` and commit
+3. Merge feature branches into `release/X.Y.Z`
+4. When ready, create a PR to merge `release/X.Y.Z` into `main`
+5. After PR is merged into `main`, create a tag and release: `git tag vX.Y.Z && git push origin vX.Y.Z && gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
 
 ### Commit messages
 - Use conventional commit format with lowercase prefixes (e.g., "feat:", "fix:", "chore:")

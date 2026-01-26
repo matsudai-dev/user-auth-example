@@ -1,3 +1,21 @@
+CREATE TABLE `login_rate_limits` (
+	`email` text PRIMARY KEY NOT NULL,
+	`failed_attempts` integer DEFAULT 0 NOT NULL,
+	`locked_until` integer,
+	`expires_at` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `login_sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`refresh_token_hash` text NOT NULL,
+	`user_agent` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`last_accessed_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`expires_at` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `login_sessions_refresh_token_hash_unique` ON `login_sessions` (`refresh_token_hash`);--> statement-breakpoint
 CREATE TABLE `signup_sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
