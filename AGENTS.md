@@ -22,7 +22,14 @@ This is a user authentication sample application.
 ### Available commands
 All commands should be run inside the Docker container. From the host OS, prefix commands with:
 
-`docker exec -it user-auth-app bash -c "..."`
+`docker exec user-auth-app bash -c "..."`
+
+(Note: Use `docker exec` without `-it` flags when running from non-TTY environments)
+
+**Quick check (run before committing):**
+```
+docker exec user-auth-app bash -c "bun run biome && bun run tsc && bun run test:unit"
+```
 
 - `bun run biome` - Run Biome linter/formatter
 - `bun run tsc` - Run TypeScript type checker

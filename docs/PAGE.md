@@ -2,27 +2,32 @@
 
 ## Table of Contents
 - [Pages](#Pages)
-    - [`/`](#root) : Home page (requires login)
+    - [`/`](#root) : Home page
     - [`/login`](#login) : User login page
     - [`/signup`](#signup) : User registration page
     - [`/signup/verify`](#signupverify) : Password setup page after email verification
+    - [`/settings`](#settings) : User settings page (requires login)
 
 ## Pages
 
 ### `/`
 
-Home page for authenticated users.
+Home page with different content based on authentication status.
 
 #### Middleware
-- `login_required` - Redirects to `/login` if not authenticated
+- `optionalAuth` - Continues regardless of auth status
 
-#### Components
+#### Components (Authenticated)
 - User's email address display
+- Link to settings page (`/settings`)
+
+#### Components (Not Authenticated)
+- Link to login page (`/login`)
 
 #### Behavior
-1. `login_required` middleware validates authentication
-2. If validation fails: Redirects to `/login`
-3. If validation succeeds: Displays user's email address
+1. `optionalAuth` middleware checks authentication
+2. If authenticated: Displays user's email address and settings link
+3. If not authenticated: Displays login link
 
 ### `/login`
 
@@ -79,3 +84,22 @@ Password setup page accessed via email verification link ( `/signup/verify?token
 6. Calls `POST /api/v1/signup/verify` with token and password
 7. On success (200): Redirects to `/`
 8. On error: Displays appropriate error message
+
+### `/settings`
+
+User settings page for managing account.
+
+#### Middleware
+- `createAuthenticatedRoute` - Redirects to `/login?redirect=%2Fsettings` if not authenticated
+
+#### Components
+- User's email address display
+- Logout button
+
+#### Behavior
+1. `createAuthenticatedRoute` middleware validates authentication
+2. If validation fails: Redirects to `/login?redirect=%2Fsettings`
+3. If validation succeeds: Displays user's email address and logout button
+4. User clicks logout button
+5. Calls `POST /api/v1/logout`
+6. On success (200): Redirects to `/`
