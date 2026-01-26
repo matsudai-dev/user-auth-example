@@ -20,7 +20,14 @@ export default function LoginForm() {
 
 		if (response.ok) {
 			setStatus("success");
-			window.location.href = "/";
+			const params = new URLSearchParams(window.location.search);
+			const redirect = params.get("redirect");
+			// Validate redirect to prevent open redirect (must be relative path)
+			const redirectTo =
+				redirect?.startsWith("/") && !redirect.startsWith("//")
+					? redirect
+					: "/";
+			window.location.href = redirectTo;
 			return;
 		}
 

@@ -8,6 +8,7 @@
 		"db:create:prod": "wrangler d1 create user-auth-example-db",
 		"db:migrate:local": "wrangler d1 migrations apply DB --local",
 		"db:migrate:prod": "wrangler d1 migrations apply DB --remote",
+		"db:reset:local": "rm -rf ./.wrangler/state/v3/d1 && bun run db:migrate:local",
 		"biome": "biome check --write --unsafe",
 		"tsc": "tsc --noEmit",
 		"test:unit": "bun test ./app",
