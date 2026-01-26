@@ -1,8 +1,13 @@
 import type { Context } from "hono";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import type { JWTPayload } from "hono/utils/jwt/types";
-import { ACCESS_TOKEN_COOKIE_NAME, ACCESS_TOKEN_EXPIRATION_MS } from "@/consts";
+import {
+	ACCESS_TOKEN_COOKIE_NAME,
+	ACCESS_TOKEN_EXPIRATION_MS,
+	REFRESH_TOKEN_COOKIE_NAME,
+	REFRESH_TOKEN_EXPIRATION_MS,
+} from "@/consts";
 
 export type AccessTokenPayload = JWTPayload & {
 	sub: string;
@@ -49,4 +54,30 @@ export function setAccessTokenCookie(c: Context, token: string): void {
 		path: "/",
 		maxAge: Math.floor(ACCESS_TOKEN_EXPIRATION_MS / 1000),
 	});
+}
+
+/**
+ * Sets the refresh token cookie.
+ *
+ * @param c - The Hono context
+ * @param token - The refresh token to set
+ */
+export function setRefreshTokenCookie(c: Context, token: string): void {
+	setCookie(c, REFRESH_TOKEN_COOKIE_NAME, token, {
+		httpOnly: true,
+		secure: true,
+		sameSite: "Strict",
+		path: "/",
+		maxAge: Math.floor(REFRESH_TOKEN_EXPIRATION_MS / 1000),
+	});
+}
+
+/**
+ * Clears authentication cookies.
+ *
+ * @param c - The Hono context
+ */
+export function clearAuthCookies(c: Context): void {
+	deleteCookie(c, ACCESS_TOKEN_COOKIE_NAME, { path: "/" });
+	deleteCookie(c, REFRESH_TOKEN_COOKIE_NAME, { path: "/" });
 }

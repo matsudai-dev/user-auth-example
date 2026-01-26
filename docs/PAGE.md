@@ -2,11 +2,27 @@
 
 ## Table of Contents
 - [Pages](#Pages)
+    - [`/`](#root) : Home page (requires login)
     - [`/login`](#login) : User login page
     - [`/signup`](#signup) : User registration page
     - [`/signup/verify`](#signupverify) : Password setup page after email verification
 
 ## Pages
+
+### `/`
+
+Home page for authenticated users.
+
+#### Middleware
+- `login_required` - Redirects to `/login` if not authenticated
+
+#### Components
+- User's email address display
+
+#### Behavior
+1. `login_required` middleware validates authentication
+2. If validation fails: Redirects to `/login`
+3. If validation succeeds: Displays user's email address
 
 ### `/login`
 
