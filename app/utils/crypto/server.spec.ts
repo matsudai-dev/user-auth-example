@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { setTimeout } from "node:timers/promises";
-import { generateSecureToken, generateUuidv7, hashToken } from "./server";
+import {
+	generateSalt,
+	generateSecureToken,
+	generateUuidv7,
+	hashPassword,
+	hashToken,
+} from "./server";
 
 describe("generateUuidv7", () => {
 	it("should generate a valid UUIDv7 format", () => {
@@ -128,6 +134,84 @@ describe("hashToken", () => {
 
 	it("should handle empty string", () => {
 		const hash = hashToken("");
+
+		expect(hash.length).toBe(64);
+	});
+});
+
+describe("generateSalt", () => {
+	it("should generate a salt with default length (16 bytes = 32 hex chars)", () => {
+		const salt = generateSalt();
+
+		expect(salt.length).toBe(32);
+	});
+
+	it("should generate a salt with custom byte length", () => {
+		const salt = generateSalt(8);
+
+		expect(salt.length).toBe(16);
+	});
+
+	it("should only contain hexadecimal characters", () => {
+		const salt = generateSalt();
+
+		expect(salt).toMatch(/^[0-9a-f]+$/);
+	});
+
+	it("should generate unique salts", () => {
+		const salt1 = generateSalt();
+		const salt2 = generateSalt();
+
+		expect(salt1).not.toBe(salt2);
+	});
+});
+
+describe("hashPassword", () => {
+	it("should produce consistent hashes for the same password and salt", () => {
+		const password = "mySecurePassword123";
+		const salt = "abc123def456";
+		const hash1 = hashPassword(password, salt);
+		const hash2 = hashPassword(password, salt);
+
+		expect(hash1).toBe(hash2);
+	});
+
+	it("should produce different hashes for different passwords", () => {
+		const salt = "abc123def456";
+		const hash1 = hashPassword("password1", salt);
+		const hash2 = hashPassword("password2", salt);
+
+		expect(hash1).not.toBe(hash2);
+	});
+
+	it("should produce different hashes for different salts", () => {
+		const password = "mySecurePassword123";
+		const hash1 = hashPassword(password, "salt1");
+		const hash2 = hashPassword(password, "salt2");
+
+		expect(hash1).not.toBe(hash2);
+	});
+
+	it("should produce SHA-256 hash (64 hex characters)", () => {
+		const hash = hashPassword("password", "salt");
+
+		expect(hash.length).toBe(64);
+	});
+
+	it("should only contain hexadecimal characters", () => {
+		const hash = hashPassword("password", "salt");
+
+		expect(hash).toMatch(/^[0-9a-f]+$/);
+	});
+
+	it("should handle empty password", () => {
+		const hash = hashPassword("", "salt");
+
+		expect(hash.length).toBe(64);
+	});
+
+	it("should handle empty salt", () => {
+		const hash = hashPassword("password", "");
 
 		expect(hash.length).toBe(64);
 	});
