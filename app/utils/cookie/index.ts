@@ -7,6 +7,7 @@ import {
 	ACCESS_TOKEN_EXPIRATION_MS,
 	REFRESH_TOKEN_COOKIE_NAME,
 	REFRESH_TOKEN_EXPIRATION_MS,
+	TEMP_SESSION_COOKIE_NAME,
 } from "@/consts";
 import { generateSecureToken, hashToken } from "@/utils/crypto/server";
 import { offsetMilliSeconds } from "@/utils/date";
@@ -144,6 +145,33 @@ export async function getRefreshTokenFromCookie(
 }
 
 /**
+ * Sets the temporary session cookie (session cookie - no maxAge).
+ *
+ * @param c - The Hono context
+ * @param token - The temporary session token to set
+ */
+export function setTempSessionCookie(c: Context, token: string): void {
+	setCookie(c, TEMP_SESSION_COOKIE_NAME, token, {
+		httpOnly: true,
+		secure: true,
+		sameSite: "Strict",
+		path: "/",
+		// No maxAge = session cookie (deleted when browser closes)
+	});
+}
+
+/**
+ * Retrieves the temporary session token from the cookie.
+ *
+ * @param c - The Hono context
+ * @returns The temporary session token if present, null otherwise
+ */
+export function getTempSessionTokenFromCookie(c: Context): string | null {
+	const token = getCookie(c, TEMP_SESSION_COOKIE_NAME);
+	return token ?? null;
+}
+
+/**
  * Clears authentication cookies.
  *
  * @param c - The Hono context
@@ -151,4 +179,5 @@ export async function getRefreshTokenFromCookie(
 export function clearAuthCookies(c: Context): void {
 	deleteCookie(c, ACCESS_TOKEN_COOKIE_NAME, { path: "/" });
 	deleteCookie(c, REFRESH_TOKEN_COOKIE_NAME, { path: "/" });
+	deleteCookie(c, TEMP_SESSION_COOKIE_NAME, { path: "/" });
 }

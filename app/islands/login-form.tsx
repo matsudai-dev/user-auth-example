@@ -94,6 +94,11 @@ export default function LoginForm() {
 					ログイン状態を保持する
 				</label>
 			</div>
+			{!rememberMe && (
+				<p class="text-xs text-gray-500">
+					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
+				</p>
+			)}
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 			<button
 				type="submit"

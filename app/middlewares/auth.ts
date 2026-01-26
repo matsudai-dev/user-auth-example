@@ -3,12 +3,17 @@ import type { AuthenticatedEnv, Context, Env } from "hono";
 import { createMiddleware } from "hono/factory";
 import { UNAUTHORIZED } from "@/consts";
 import { getDBClient } from "@/db/client";
-import { loginSessionsTable, usersTable } from "@/db/schemas";
+import {
+	loginSessionsTable,
+	temporarySessionsTable,
+	usersTable,
+} from "@/db/schemas";
 import {
 	generateAccessToken,
 	generateRefreshToken,
 	getPayloadFromAccessToken,
 	getRefreshTokenFromCookie,
+	getTempSessionTokenFromCookie,
 	setAccessTokenCookie,
 	setRefreshTokenCookie,
 } from "@/utils/cookie";
@@ -71,74 +76,111 @@ export const authMiddleware = <E extends Env>(
 			return;
 		}
 
-		const refreshToken = await getRefreshTokenFromCookie(c);
-
-		if (!refreshToken) {
-			const hookResult = hook({ success: false }, c);
-			if (hookResult instanceof Response) {
-				return hookResult;
-			}
-			await next();
-			return;
-		}
-
-		const refreshTokenHash = hashToken(refreshToken);
-
 		const db = getDBClient(c.env.DB);
 
-		const currentSession = await db
-			.select({
-				userId: loginSessionsTable.userId,
-				email: usersTable.email,
-			})
-			.from(loginSessionsTable)
-			.innerJoin(usersTable, eq(loginSessionsTable.userId, usersTable.id))
-			.where(eq(loginSessionsTable.refreshTokenHash, refreshTokenHash))
-			.get();
+		// Try refresh token (for rememberMe=true sessions)
+		const refreshToken = await getRefreshTokenFromCookie(c);
 
-		if (!currentSession) {
-			const hookResult = hook({ success: false }, c);
-			if (hookResult instanceof Response) {
-				return hookResult;
+		if (refreshToken) {
+			const refreshTokenHash = hashToken(refreshToken);
+
+			const currentSession = await db
+				.select({
+					userId: loginSessionsTable.userId,
+					email: usersTable.email,
+				})
+				.from(loginSessionsTable)
+				.innerJoin(usersTable, eq(loginSessionsTable.userId, usersTable.id))
+				.where(eq(loginSessionsTable.refreshTokenHash, refreshTokenHash))
+				.get();
+
+			if (currentSession) {
+				const accessToken = await generateAccessToken(
+					currentSession.userId,
+					currentSession.email,
+					c.env.JWT_SECRET,
+				);
+
+				setAccessTokenCookie(c, accessToken);
+
+				const {
+					refreshToken: newRefreshToken,
+					refreshTokenHash: newrefreshTokenHash,
+					expiresAt: newExpiresAt,
+				} = generateRefreshToken();
+
+				await db
+					.update(loginSessionsTable)
+					.set({
+						refreshTokenHash: newrefreshTokenHash,
+						expiresAt: newExpiresAt,
+					})
+					.where(eq(loginSessionsTable.refreshTokenHash, refreshTokenHash));
+
+				setRefreshTokenCookie(c, newRefreshToken);
+
+				const user = {
+					id: currentSession.userId,
+					email: currentSession.email,
+				};
+
+				const hookResult = hook({ success: true, user }, c);
+
+				if (hookResult instanceof Response) {
+					return hookResult;
+				}
+
+				c.set("user", user);
+
+				await next();
+				return;
 			}
-			await next();
-			return;
 		}
 
-		const accessToken = await generateAccessToken(
-			currentSession.userId,
-			currentSession.email,
-			c.env.JWT_SECRET,
-		);
+		// Try temporary session token (for rememberMe=false sessions)
+		const tempSessionToken = getTempSessionTokenFromCookie(c);
 
-		setAccessTokenCookie(c, accessToken);
+		if (tempSessionToken) {
+			const sessionTokenHash = hashToken(tempSessionToken);
 
-		const {
-			refreshToken: newRefreshToken,
-			refreshTokenHash: newrefreshTokenHash,
-			expiresAt: newExpiresAt,
-		} = generateRefreshToken();
+			const tempSession = await db
+				.select({
+					sessionId: temporarySessionsTable.id,
+					userId: temporarySessionsTable.userId,
+					email: usersTable.email,
+				})
+				.from(temporarySessionsTable)
+				.innerJoin(usersTable, eq(temporarySessionsTable.userId, usersTable.id))
+				.where(eq(temporarySessionsTable.sessionTokenHash, sessionTokenHash))
+				.get();
 
-		await db
-			.update(loginSessionsTable)
-			.set({
-				refreshTokenHash: newrefreshTokenHash,
-				expiresAt: newExpiresAt,
-			})
-			.where(eq(loginSessionsTable.refreshTokenHash, refreshTokenHash));
+			if (tempSession) {
+				// Update lastAccessedAt for cleanup tracking
+				await db
+					.update(temporarySessionsTable)
+					.set({ lastAccessedAt: new Date() })
+					.where(eq(temporarySessionsTable.id, tempSession.sessionId));
 
-		setRefreshTokenCookie(c, newRefreshToken);
+				const user = { id: tempSession.userId, email: tempSession.email };
 
-		const user = { id: currentSession.userId, email: currentSession.email };
+				const hookResult = hook({ success: true, user }, c);
 
-		const hookResult = hook({ success: true, user }, c);
+				if (hookResult instanceof Response) {
+					return hookResult;
+				}
 
+				c.set("user", user);
+
+				await next();
+				return;
+			}
+		}
+
+		// No valid authentication found
+		const hookResult = hook({ success: false }, c);
 		if (hookResult instanceof Response) {
 			return hookResult;
 		}
-
-		c.set("user", user);
-
 		await next();
 	});
 };

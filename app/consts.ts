@@ -14,6 +14,9 @@ export const ACCESS_TOKEN_EXPIRATION_MS = 15 * 60 * 1000; // 15 minutes
 export const REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 export const REFRESH_TOKEN_EXPIRATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+export const TEMP_SESSION_COOKIE_NAME = "temp_session";
+export const TEMP_SESSION_IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours (for cleanup)
+
 export const PASSWORD_MIN_LENGTH = 8;
 
 export const LOGIN_MAX_ATTEMPTS = 5;
