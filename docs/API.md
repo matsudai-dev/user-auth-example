@@ -5,6 +5,7 @@
     - [`POST /api/v1/signup`](#POST-apiv1signup) : Create a new user account and send a verification email.
     - [`POST /api/v1/signup/verify`](#POST-apiv1signupverify) : Verify signup session and create user account.
     - [`POST /api/v1/login`](#POST-apiv1login) : Authenticate user and issue JWT.
+    - [`POST /api/v1/logout`](#POST-apiv1logout) : Clear authentication cookies and invalidate session.
 
 ## Endpoints
 
@@ -68,3 +69,15 @@ type ResponseText = "OK" | "Bad Request" | "Not Found" | "Unauthorized" | "Too M
 5. Resets failed attempts on successful login
 6. Issues a JWT and sets it as an HTTP-only cookie
 7. Returns `200 OK`
+
+### `POST /api/v1/logout`
+
+```ts
+type ResponseText = "OK" | "Unauthorized"
+```
+
+#### Flow
+1. Returns `401 Unauthorized` if not authenticated
+2. Deletes the current login session from `login_sessions` table
+3. Clears access token and refresh token cookies
+4. Returns `200 OK`
