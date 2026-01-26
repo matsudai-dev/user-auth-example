@@ -16,12 +16,14 @@ import { getDBClient } from "@/db/client";
 import {
 	loginRateLimitsTable,
 	loginSessionsTable,
+	temporarySessionsTable,
 	usersTable,
 } from "@/db/schemas";
 import {
 	generateAccessToken,
 	setAccessTokenCookie,
 	setRefreshTokenCookie,
+	setTempSessionCookie,
 } from "@/utils/cookie";
 import {
 	generateSecureToken,
@@ -132,28 +134,45 @@ export const route = createHonoApp().post("/", jsonValidator, async (c) => {
 		.delete(loginRateLimitsTable)
 		.where(eq(loginRateLimitsTable.email, email));
 
-	const accessToken = await generateAccessToken(
-		user.id,
-		user.email,
-		c.env.JWT_SECRET,
-	);
-	setAccessTokenCookie(c, accessToken);
-
-	const refreshToken = generateSecureToken();
-	const refreshTokenHash = hashToken(refreshToken);
 	const sessionId = generateUuidv7();
 	const userAgent = c.req.header("User-Agent") ?? null;
-	const expiresAt = offsetMilliSeconds(now, REFRESH_TOKEN_EXPIRATION_MS);
 
-	await db.insert(loginSessionsTable).values({
-		id: sessionId,
-		userId: user.id,
-		refreshTokenHash,
-		userAgent,
-		expiresAt,
-	});
+	if (rememberMe) {
+		// Issue access token + refresh token for persistent sessions
+		const accessToken = await generateAccessToken(
+			user.id,
+			user.email,
+			c.env.JWT_SECRET,
+		);
+		setAccessTokenCookie(c, accessToken);
 
-	setRefreshTokenCookie(c, refreshToken, rememberMe);
+		const refreshToken = generateSecureToken();
+		const refreshTokenHash = hashToken(refreshToken);
+		const expiresAt = offsetMilliSeconds(now, REFRESH_TOKEN_EXPIRATION_MS);
+
+		await db.insert(loginSessionsTable).values({
+			id: sessionId,
+			userId: user.id,
+			refreshTokenHash,
+			userAgent,
+			expiresAt,
+		});
+
+		setRefreshTokenCookie(c, refreshToken, true);
+	} else {
+		// Issue temporary session token only (session cookie)
+		const tempSessionToken = generateSecureToken();
+		const sessionTokenHash = hashToken(tempSessionToken);
+
+		await db.insert(temporarySessionsTable).values({
+			id: sessionId,
+			userId: user.id,
+			sessionTokenHash,
+			userAgent,
+		});
+
+		setTempSessionCookie(c, tempSessionToken);
+	}
 
 	return c.text(OK, 200);
 });
