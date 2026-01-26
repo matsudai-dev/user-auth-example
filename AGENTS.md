@@ -57,6 +57,7 @@ All commands should be run inside the Docker container. From the host OS, prefix
 - Prefer immutability (const over let, avoid mutations)
 - Write declarative code over imperative code
 - Use generic syntax for array types ( `Array<string>` ) instead of shorthand ( `string[]` )
+- Never use non-null assertions ( `!` ). Use if statements or other type guards to narrow types, even if it adds redundancy
 
 ### Import organization
 - Biome automatically sorts imports A-Z, so no need to manually order them
@@ -68,6 +69,10 @@ All commands should be run inside the Docker container. From the host OS, prefix
 - Export route as named export: `export const route = ...`
 - Also include default export: `export default route`
 - Apply middleware in order: validator, error handler, main handler
+
+### Middleware
+- Use `createMiddleware<Env>` from `hono/factory` to create middleware functions
+- Use factory function pattern with hooks for flexible error handling (e.g., `loginRequired((result, c) => { ... })` )
 
 ### Validation
 - Use `@hono/standard-validator` with Zod schemas
