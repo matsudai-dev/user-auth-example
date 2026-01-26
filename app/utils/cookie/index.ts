@@ -80,15 +80,25 @@ export function setAccessTokenCookie(c: Context, token: string): void {
  *
  * @param c - The Hono context
  * @param token - The refresh token to set
+ * @param rememberMe - If true (default), sets maxAge for persistent cookie; if false, creates session cookie
  */
-export function setRefreshTokenCookie(c: Context, token: string): void {
-	setCookie(c, REFRESH_TOKEN_COOKIE_NAME, token, {
+export function setRefreshTokenCookie(
+	c: Context,
+	token: string,
+	rememberMe = true,
+): void {
+	const cookieOptions: Parameters<typeof setCookie>[3] = {
 		httpOnly: true,
 		secure: true,
 		sameSite: "Strict",
 		path: "/",
-		maxAge: Math.floor(REFRESH_TOKEN_EXPIRATION_MS / 1000),
-	});
+	};
+
+	if (rememberMe) {
+		cookieOptions.maxAge = Math.floor(REFRESH_TOKEN_EXPIRATION_MS / 1000);
+	}
+
+	setCookie(c, REFRESH_TOKEN_COOKIE_NAME, token, cookieOptions);
 }
 
 /**
