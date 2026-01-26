@@ -4,6 +4,7 @@ import { apiClient } from "@/utils/api-client";
 export default function LoginForm() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [rememberMe, setRememberMe] = useState(true);
 	const [status, setStatus] = useState<
 		"idle" | "loading" | "success" | "error"
 	>("idle");
@@ -15,7 +16,7 @@ export default function LoginForm() {
 		setErrorMessage("");
 
 		const response = await apiClient.v1.login.$post({
-			json: { email, password },
+			json: { email, password, rememberMe },
 		});
 
 		if (response.ok) {
@@ -77,6 +78,21 @@ export default function LoginForm() {
 					required
 					disabled={status === "loading"}
 				/>
+			</div>
+			<div class="flex items-center">
+				<input
+					type="checkbox"
+					id="rememberMe"
+					checked={rememberMe}
+					onChange={(e) =>
+						setRememberMe((e.target as HTMLInputElement).checked)
+					}
+					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+					disabled={status === "loading"}
+				/>
+				<label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+					ログイン状態を保持する
+				</label>
 			</div>
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 			<button

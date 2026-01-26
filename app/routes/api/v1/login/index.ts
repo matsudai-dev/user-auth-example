@@ -37,6 +37,7 @@ const jsonValidator = sValidator(
 	z.object({
 		email: z.email(),
 		password: z.string().min(1),
+		rememberMe: z.boolean().optional().default(true),
 	}),
 	(result, c) => {
 		if (!result.success) {
@@ -46,7 +47,7 @@ const jsonValidator = sValidator(
 );
 
 export const route = createHonoApp().post("/", jsonValidator, async (c) => {
-	const { email, password } = c.req.valid("json");
+	const { email, password, rememberMe } = c.req.valid("json");
 
 	const db = getDBClient(c.env.DB);
 
@@ -152,7 +153,7 @@ export const route = createHonoApp().post("/", jsonValidator, async (c) => {
 		expiresAt,
 	});
 
-	setRefreshTokenCookie(c, refreshToken);
+	setRefreshTokenCookie(c, refreshToken, rememberMe);
 
 	return c.text(OK, 200);
 });
