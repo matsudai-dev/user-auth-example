@@ -2,17 +2,16 @@
 	"permissions": {
 		"allow": [
 			"Bash(docker exec:*)",
-			"Bash(gh issue create:*)",
-			"Bash(git checkout:*)",
-			"Bash(git pull:*)",
 			"Bash(docker start:*)",
 			"Bash(docker restart:*)",
-			"Bash(git add:*)",
-			"Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add POST /api/v1/login endpoint\n\nCloses #9\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-			"Bash(git push:*)",
-			"Bash(gh pr create --base release/0.1.3 --head \"feature/#9\" --title \"Add POST /api/v1/login endpoint\" --body \"$\\(cat <<''EOF''\n## Summary\n- Add `POST /api/v1/login` endpoint with rate limiting\n- Add `login_rate_limits` table schema for tracking failed login attempts\n- Add rate limiting constants \\(`LOGIN_MAX_ATTEMPTS`, `LOGIN_LOCK_DURATION_MS`\\)\n\n## Response Codes\n- `400`: Invalid email format\n- `404`: User not found\n- `429`: Rate limit exceeded \\(5 failed attempts → 15min lock\\)\n- `401`: Incorrect password\n- `200`: Success with JWT cookie\n\n## Test plan\n- [ ] Login with valid credentials\n- [ ] Verify 404 for non-existent user\n- [ ] Verify 401 for wrong password\n- [ ] Verify rate limiting after 5 failed attempts\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")",
 			"Bash(git fetch:*)",
-			"Bash(git commit -m \"$\\(cat <<''EOF''\nchore: update devcontainer and claude settings\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+			"Bash(git pull:*)",
+			"Bash(git checkout:*)",
+			"Bash(git add:*)",
+			"Bash(git commit:*)",
+			"Bash(git push:*)",
+			"Bash(gh issue create:*)",
+			"Bash(gh pr create:*)"
 		]
 	}
 }
