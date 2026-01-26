@@ -1,17 +1,17 @@
 {
 	"permissions": {
 		"allow": [
-			"Bash(docker exec:*)",
-			"Bash(docker start:*)",
-			"Bash(docker restart:*)",
-			"Bash(git fetch:*)",
-			"Bash(git pull:*)",
-			"Bash(git checkout:*)",
-			"Bash(git add:*)",
-			"Bash(git commit:*)",
-			"Bash(git push:*)",
-			"Bash(gh issue create:*)",
-			"Bash(gh pr create:*)"
+			"Bash(docker exec *)",
+			"Bash(docker start *)",
+			"Bash(docker restart *)",
+			"Bash(git fetch*)",
+			"Bash(git pull*)",
+			"Bash(git checkout *)",
+			"Bash(git add *)",
+			"Bash(git commit *)",
+			"Bash(git push*)",
+			"Bash(gh issue create *)",
+			"Bash(gh pr create *)"
 		]
 	}
 }
