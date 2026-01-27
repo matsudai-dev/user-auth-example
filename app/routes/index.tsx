@@ -12,9 +12,15 @@ export default createRoute(optionalAuth, (c) => {
 					<h1 class="text-2xl font-bold text-center mb-6">ホーム</h1>
 					{user ? (
 						<div class="text-center space-y-2">
-							<p class="text-gray-700">ログイン中: {user.email}</p>
+							<p id="logged-in-email" class="text-gray-700">
+								ログイン中: {user.email}
+							</p>
 							<p>
-								<a href="/settings" class="text-blue-600 hover:underline">
+								<a
+									href="/settings"
+									data-testid="settings-link"
+									class="text-blue-600 hover:underline"
+								>
 									設定
 								</a>
 							</p>
@@ -22,14 +28,22 @@ export default createRoute(optionalAuth, (c) => {
 					) : (
 						<div class="text-center space-y-2">
 							<p class="text-gray-600">
-								<a href="/login" class="text-blue-600 hover:underline">
+								<a
+									href="/login"
+									data-testid="login-link"
+									class="text-blue-600 hover:underline"
+								>
 									ログイン
 								</a>
 								してください
 							</p>
 							<p class="text-gray-600">
 								アカウントをお持ちでない方は
-								<a href="/signup" class="text-blue-600 hover:underline">
+								<a
+									href="/signup"
+									data-testid="signup-link"
+									class="text-blue-600 hover:underline"
+								>
 									新規登録
 								</a>
 							</p>

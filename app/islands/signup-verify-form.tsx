@@ -56,14 +56,17 @@ export default function SignupVerifyForm({ email, token }: Props) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} class="space-y-6">
+		<form id="signup-verify-form" onSubmit={handleSubmit} class="space-y-6">
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">
+				<label
+					for="signup-verify-email"
+					class="block text-sm font-medium text-gray-700"
+				>
 					メールアドレス
 				</label>
 				<input
 					type="email"
-					id="email"
+					id="signup-verify-email"
 					value={email}
 					disabled
 					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-600"
@@ -71,12 +74,15 @@ export default function SignupVerifyForm({ email, token }: Props) {
 			</div>
 
 			<div>
-				<label for="password" class="block text-sm font-medium text-gray-700">
+				<label
+					for="signup-verify-password"
+					class="block text-sm font-medium text-gray-700"
+				>
 					パスワード
 				</label>
 				<input
 					type="password"
-					id="password"
+					id="signup-verify-password"
 					value={password}
 					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
 					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
@@ -114,14 +120,14 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 			<div>
 				<label
-					for="passwordConfirm"
+					for="signup-verify-password-confirm"
 					class="block text-sm font-medium text-gray-700"
 				>
 					パスワード（確認用）
 				</label>
 				<input
 					type="password"
-					id="passwordConfirm"
+					id="signup-verify-password-confirm"
 					value={passwordConfirm}
 					onInput={(e) =>
 						setPasswordConfirm((e.target as HTMLInputElement).value)
@@ -143,7 +149,7 @@ export default function SignupVerifyForm({ email, token }: Props) {
 			<div class="flex items-center">
 				<input
 					type="checkbox"
-					id="rememberMe"
+					id="signup-verify-remember-me"
 					checked={rememberMe}
 					onChange={(e) =>
 						setRememberMe((e.target as HTMLInputElement).checked)
@@ -151,7 +157,10 @@ export default function SignupVerifyForm({ email, token }: Props) {
 					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
 					disabled={status === "loading"}
 				/>
-				<label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+				<label
+					for="signup-verify-remember-me"
+					class="ml-2 block text-sm text-gray-700"
+				>
 					ログイン状態を保持する
 				</label>
 			</div>
@@ -165,6 +174,7 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 			<button
 				type="submit"
+				id="signup-verify-submit"
 				disabled={!canSubmit}
 				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>

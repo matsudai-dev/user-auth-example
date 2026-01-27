@@ -16,8 +16,9 @@
 		"test:e2e:report": "playwright show-report --host 0.0.0.0",
 		"dev": "vite",
 		"build": "vite build --mode client && vite build",
-		"preview": "bun run build && wrangler dev --ip 0.0.0.0",
-		"deploy": "bun run build && wrangler deploy"
+		"build:prod": "STRIP_TEST_IDS=true bun run build",
+		"preview": "wrangler dev --ip 0.0.0.0",
+		"deploy": "wrangler deploy"
 	},
 	"dependencies": {
 		"@hono/standard-validator": "^0.2.2",

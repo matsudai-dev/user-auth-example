@@ -45,14 +45,17 @@ export default function SignupForm() {
 	}
 
 	return (
-		<form onSubmit={handleSubmit} class="space-y-4">
+		<form id="signup-form" onSubmit={handleSubmit} class="space-y-4">
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">
+				<label
+					for="signup-email"
+					class="block text-sm font-medium text-gray-700"
+				>
 					メールアドレス
 				</label>
 				<input
 					type="email"
-					id="email"
+					id="signup-email"
 					value={email}
 					onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
 					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
@@ -64,6 +67,7 @@ export default function SignupForm() {
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 			<button
 				type="submit"
+				id="signup-submit"
 				disabled={status === "loading"}
 				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
