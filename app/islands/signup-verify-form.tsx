@@ -18,6 +18,7 @@ function ValidationIcon({ isValid }: { isValid: boolean }) {
 export default function SignupVerifyForm({ email, token }: Props) {
 	const [password, setPassword] = useState("");
 	const [passwordConfirm, setPasswordConfirm] = useState("");
+	const [rememberMe, setRememberMe] = useState(true);
 	const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 	const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,7 +35,7 @@ export default function SignupVerifyForm({ email, token }: Props) {
 		setErrorMessage("");
 
 		const response = await apiClient.v1.signup.verify.$post({
-			json: { signupSessionToken: token, password },
+			json: { signupSessionToken: token, password, rememberMe },
 		});
 
 		if (response.ok) {
@@ -138,6 +139,27 @@ export default function SignupVerifyForm({ email, token }: Props) {
 					</p>
 				)}
 			</div>
+
+			<div class="flex items-center">
+				<input
+					type="checkbox"
+					id="rememberMe"
+					checked={rememberMe}
+					onChange={(e) =>
+						setRememberMe((e.target as HTMLInputElement).checked)
+					}
+					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+					disabled={status === "loading"}
+				/>
+				<label for="rememberMe" class="ml-2 block text-sm text-gray-700">
+					ログイン状態を保持する
+				</label>
+			</div>
+			{!rememberMe && (
+				<p class="text-xs text-gray-500">
+					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
+				</p>
+			)}
 
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 
