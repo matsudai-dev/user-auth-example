@@ -20,12 +20,20 @@ export default createRoute(optionalAuth, (c) => {
 							</p>
 						</div>
 					) : (
-						<p class="text-center text-gray-600">
-							<a href="/login" class="text-blue-600 hover:underline">
-								ログイン
-							</a>
-							してください
-						</p>
+						<div class="text-center space-y-2">
+							<p class="text-gray-600">
+								<a href="/login" class="text-blue-600 hover:underline">
+									ログイン
+								</a>
+								してください
+							</p>
+							<p class="text-gray-600">
+								アカウントをお持ちでない方は
+								<a href="/signup" class="text-blue-600 hover:underline">
+									新規登録
+								</a>
+							</p>
+						</div>
 					)}
 				</div>
 			</div>
