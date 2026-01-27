@@ -12,12 +12,12 @@ export default createRoute(async (c) => {
 		return c.render(
 			<>
 				<title>エラー | User Auth Example</title>
-				<div class="min-h-screen flex items-center justify-center bg-gray-50">
-					<div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-						<h1 class="text-2xl font-bold text-center mb-6 text-red-600">
+				<div class="min-h-screen flex items-center justify-center">
+					<div class="max-w-md w-full p-6 rounded-lg shadow-md">
+						<h1 class="text-2xl font-bold text-center mb-6 text-red-600 dark:text-red-400">
 							エラー
 						</h1>
-						<p class="text-center text-gray-600">
+						<p class="text-center">
 							無効なリンクです。メールに記載されたリンクを再度クリックしてください。
 						</p>
 					</div>
@@ -39,12 +39,12 @@ export default createRoute(async (c) => {
 		return c.render(
 			<>
 				<title>エラー | User Auth Example</title>
-				<div class="min-h-screen flex items-center justify-center bg-gray-50">
-					<div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-						<h1 class="text-2xl font-bold text-center mb-6 text-red-600">
+				<div class="min-h-screen flex items-center justify-center">
+					<div class="max-w-md w-full p-6 rounded-lg shadow-md">
+						<h1 class="text-2xl font-bold text-center mb-6 text-red-600 dark:text-red-400">
 							エラー
 						</h1>
-						<p class="text-center text-gray-600">
+						<p class="text-center">
 							このリンクは無効または期限切れです。再度登録をお試しください。
 						</p>
 					</div>
@@ -58,12 +58,12 @@ export default createRoute(async (c) => {
 		return c.render(
 			<>
 				<title>エラー | User Auth Example</title>
-				<div class="min-h-screen flex items-center justify-center bg-gray-50">
-					<div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-						<h1 class="text-2xl font-bold text-center mb-6 text-red-600">
+				<div class="min-h-screen flex items-center justify-center">
+					<div class="max-w-md w-full p-6 rounded-lg shadow-md">
+						<h1 class="text-2xl font-bold text-center mb-6 text-red-600 dark:text-red-400">
 							エラー
 						</h1>
-						<p class="text-center text-gray-600">
+						<p class="text-center">
 							このリンクは期限切れです。再度登録をお試しください。
 						</p>
 					</div>
@@ -75,8 +75,8 @@ export default createRoute(async (c) => {
 	return c.render(
 		<>
 			<title>パスワード設定 | User Auth Example</title>
-			<div class="min-h-screen flex items-center justify-center bg-gray-50">
-				<div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
+			<div class="min-h-screen flex items-center justify-center">
+				<div class="max-w-md w-full p-6 rounded-lg shadow-md">
 					<h1 class="text-2xl font-bold text-center mb-6">パスワード設定</h1>
 					<SignupVerifyForm email={session.email} token={token} />
 				</div>
