@@ -15,8 +15,9 @@
 		"test:e2e": "bun run --env-file=.env.test playwright test",
 		"test:e2e:report": "playwright show-report --host 0.0.0.0",
 		"dev": "vite",
-		"build": "vite build --mode client && vite build",
-		"build:prod": "STRIP_TEST_IDS=true bun run build",
+		"build": "echo -e '\\033[1;32m[Notice] Please specify a build target: \"build:e2e\" or \"build:prod\".\\033[0m' && exit 1",
+		"build:e2e": "vite build --mode client && vite build",
+		"build:prod": "vite build --mode client && STRIP_TEST_IDS=true vite build",
 		"preview": "wrangler dev --ip 0.0.0.0",
 		"deploy": "wrangler deploy"
 	},

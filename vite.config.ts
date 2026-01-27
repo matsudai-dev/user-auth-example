@@ -2,37 +2,24 @@ import build from "@hono/vite-build/cloudflare-workers";
 import adapter from "@hono/vite-dev-server/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
 import honox from "honox/vite";
-import MagicString from "magic-string";
 import { defineConfig, type Plugin } from "vite";
 
 function removeDataTestId(): Plugin {
-	const pattern = /\s*data-testid="[^"]*"/g;
+	const jsPattern = /,?\s*"data-testid":\s*"[^"]*"/g;
 	const isProduction = process.env.STRIP_TEST_IDS === "true";
+
 	return {
 		name: "remove-data-testid",
 		apply: "build",
-		transform(code, id) {
+		renderChunk(code) {
 			if (!isProduction) {
 				return null;
 			}
-			if (!id.endsWith(".tsx") && !id.endsWith(".jsx")) {
+			if (!jsPattern.test(code)) {
 				return null;
 			}
-			if (!pattern.test(code)) {
-				return null;
-			}
-			pattern.lastIndex = 0;
-			const s = new MagicString(code);
-			const matches = code.matchAll(pattern);
-			for (const match of matches) {
-				if (match.index !== undefined) {
-					s.remove(match.index, match.index + match[0].length);
-				}
-			}
-			return {
-				code: s.toString(),
-				map: s.generateMap({ hires: true }),
-			};
+			jsPattern.lastIndex = 0;
+			return code.replace(jsPattern, "");
 		},
 	};
 }
