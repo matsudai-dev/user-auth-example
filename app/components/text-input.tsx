@@ -24,19 +24,19 @@ export function TextInput({
 	color = "default",
 }: TextInputProps): JSX.Element {
 	const baseClasses =
-		"mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100";
+		"mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100";
 	const disabledClasses =
-		"bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400";
+		"bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400";
 
 	const colorClasses = {
 		default:
-			"border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:focus:ring-orange-400 dark:focus:border-orange-400",
+			"border-neutral-300 dark:border-neutral-600 focus:outline-none focus:ring-neutral-500 focus:border-neutral-500 dark:focus:ring-neutral-400 dark:focus:border-neutral-400",
 		primary:
-			"border-blue-300 dark:border-blue-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400",
+			"border-emerald-300 dark:border-emerald-800 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:focus:ring-emerald-400 dark:focus:border-emerald-400",
 		secondary:
-			"border-purple-300 dark:border-purple-600 focus:outline-none focus:ring-purple-500 focus:border-purple-500 dark:focus:ring-purple-400 dark:focus:border-purple-400",
+			"border-fuchsia-300 dark:border-fuchsia-800 focus:outline-none focus:ring-fuchsia-500 focus:border-fuchsia-500 dark:focus:ring-fuchsia-400 dark:focus:border-fuchsia-400",
 		danger:
-			"border-red-300 dark:border-red-600 focus:outline-none focus:ring-red-500 focus:border-red-500 dark:focus:ring-red-400 dark:focus:border-red-400",
+			"border-red-300 dark:border-red-800 focus:outline-none focus:ring-red-500 focus:border-red-500 dark:focus:ring-red-400 dark:focus:border-red-400",
 	};
 
 	const className = disabled
@@ -61,7 +61,7 @@ export function TextInput({
 			<div>
 				<label
 					for={id}
-					class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+					class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
 				>
 					{label}
 				</label>
