@@ -1,7 +1,9 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
+import { TextInput } from "@/components/text-input";
 import { apiClient } from "@/utils/api-client";
 
-export default function SignupForm() {
+export default function SignupForm(): JSX.Element {
 	const [email, setEmail] = useState("");
 	const [status, setStatus] = useState<
 		"idle" | "loading" | "success" | "error"
@@ -46,24 +48,16 @@ export default function SignupForm() {
 
 	return (
 		<form id="signup-form" onSubmit={handleSubmit} class="space-y-4">
-			<div>
-				<label
-					for="signup-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="signup-email"
-					value={email}
-					onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					placeholder="example@example.com"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
+			<TextInput
+				id="signup-email"
+				label="メールアドレス"
+				type="email"
+				value={email}
+				onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+				placeholder="example@example.com"
+				required
+				disabled={status === "loading"}
+			/>
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 			<button
 				type="submit"

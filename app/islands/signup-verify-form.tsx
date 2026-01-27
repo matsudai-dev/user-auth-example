@@ -1,4 +1,6 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
+import { TextInput } from "@/components/text-input";
 import { PASSWORD_MIN_LENGTH } from "@/consts";
 import { apiClient } from "@/utils/api-client";
 import { validatePassword } from "@/utils/validation";
@@ -8,7 +10,7 @@ type Props = {
 	token: string;
 };
 
-function ValidationIcon({ isValid }: { isValid: boolean }) {
+function ValidationIcon({ isValid }: { isValid: boolean }): JSX.Element {
 	if (isValid) {
 		return <span class="text-green-600">&#10003;</span>;
 	}
@@ -57,35 +59,21 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 	return (
 		<form id="signup-verify-form" onSubmit={handleSubmit} class="space-y-6">
-			<div>
-				<label
-					for="signup-verify-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="signup-verify-email"
-					value={email}
-					disabled
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-600"
-				/>
-			</div>
+			<TextInput
+				label="メールアドレス"
+				type="email"
+				id="signup-verify-email"
+				value={email}
+				disabled
+			/>
 
 			<div>
-				<label
-					for="signup-verify-password"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード
-				</label>
-				<input
-					type="password"
+				<TextInput
 					id="signup-verify-password"
+					label="パスワード"
+					type="password"
 					value={password}
 					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
 					disabled={status === "loading"}
 				/>
 				<ul class="mt-2 text-sm space-y-1">
@@ -119,20 +107,14 @@ export default function SignupVerifyForm({ email, token }: Props) {
 			</div>
 
 			<div>
-				<label
-					for="signup-verify-password-confirm"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード（確認用）
-				</label>
-				<input
-					type="password"
+				<TextInput
 					id="signup-verify-password-confirm"
+					label="パスワード（確認用）"
+					type="password"
 					value={passwordConfirm}
 					onInput={(e) =>
 						setPasswordConfirm((e.target as HTMLInputElement).value)
 					}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
 					disabled={status === "loading"}
 				/>
 				{passwordConfirm.length > 0 && (

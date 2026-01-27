@@ -1,7 +1,8 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
 import { apiClient } from "@/utils/api-client";
 
-export default function LogoutButton() {
+export default function LogoutButton(): JSX.Element {
 	const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 
 	const handleLogout = async () => {

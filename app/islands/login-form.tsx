@@ -1,7 +1,9 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
+import { TextInput } from "@/components/text-input";
 import { apiClient } from "@/utils/api-client";
 
-export default function LoginForm() {
+export default function LoginForm(): JSX.Element {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [rememberMe, setRememberMe] = useState(true);
@@ -50,41 +52,25 @@ export default function LoginForm() {
 
 	return (
 		<form id="login-form" onSubmit={handleSubmit} class="space-y-4">
-			<div>
-				<label
-					for="login-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="login-email"
-					value={email}
-					onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					placeholder="example@example.com"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
-			<div>
-				<label
-					for="login-password"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード
-				</label>
-				<input
-					type="password"
-					id="login-password"
-					value={password}
-					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
+			<TextInput
+				id="login-email"
+				label="メールアドレス"
+				type="email"
+				value={email}
+				onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+				placeholder="example@example.com"
+				required
+				disabled={status === "loading"}
+			/>
+			<TextInput
+				id="login-password"
+				label="パスワード"
+				type="password"
+				value={password}
+				onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+				required
+				disabled={status === "loading"}
+			/>
 			<div class="flex items-center">
 				<input
 					type="checkbox"
