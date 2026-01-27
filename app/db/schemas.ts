@@ -64,3 +64,19 @@ export const loginSessionsTable = sqliteTable("login_sessions", {
 	/** Expiration timestamp */
 	expiresAt: timestamp("expires_at").notNull(),
 });
+
+/** `temporary_sessions` table schema definition (for rememberMe=false) */
+export const temporarySessionsTable = sqliteTable("temporary_sessions", {
+	/** UUIDv7 */
+	id: text("id").primaryKey(),
+	/** User ID (foreign key to users table) */
+	userId: text("user_id").notNull(),
+	/** SHA-256 hash of the session token */
+	sessionTokenHash: text("session_token_hash").notNull().unique(),
+	/** Client user agent string */
+	userAgent: text("user_agent"),
+	/** Timestamp of session creation */
+	createdAt: timestamp("created_at").notNull().default(now()),
+	/** Timestamp of last access (for cleanup purposes) */
+	lastAccessedAt: timestamp("last_accessed_at").notNull().default(now()),
+});

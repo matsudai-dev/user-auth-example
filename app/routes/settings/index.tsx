@@ -15,14 +15,20 @@ export default createAuthenticatedRoute((c) => {
 							<span class="block text-sm font-medium text-gray-700">
 								メールアドレス
 							</span>
-							<p class="mt-1 text-gray-900">{user.email}</p>
+							<p id="settings-email" class="mt-1 text-gray-900">
+								{user.email}
+							</p>
 						</div>
 						<div class="pt-4 border-t border-gray-200">
 							<LogoutButton />
 						</div>
 					</div>
 					<p class="mt-6 text-center text-sm text-gray-600">
-						<a href="/" class="text-blue-600 hover:underline">
+						<a
+							href="/"
+							data-testid="home-link"
+							class="text-blue-600 hover:underline"
+						>
 							ホームに戻る
 						</a>
 					</p>

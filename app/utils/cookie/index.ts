@@ -7,6 +7,7 @@ import {
 	ACCESS_TOKEN_EXPIRATION_MS,
 	REFRESH_TOKEN_COOKIE_NAME,
 	REFRESH_TOKEN_EXPIRATION_MS,
+	TEMP_SESSION_COOKIE_NAME,
 } from "@/consts";
 import { generateSecureToken, hashToken } from "@/utils/crypto/server";
 import { offsetMilliSeconds } from "@/utils/date";
@@ -80,15 +81,25 @@ export function setAccessTokenCookie(c: Context, token: string): void {
  *
  * @param c - The Hono context
  * @param token - The refresh token to set
+ * @param rememberMe - If true (default), sets maxAge for persistent cookie; if false, creates session cookie
  */
-export function setRefreshTokenCookie(c: Context, token: string): void {
-	setCookie(c, REFRESH_TOKEN_COOKIE_NAME, token, {
+export function setRefreshTokenCookie(
+	c: Context,
+	token: string,
+	rememberMe = true,
+): void {
+	const cookieOptions: Parameters<typeof setCookie>[3] = {
 		httpOnly: true,
 		secure: true,
 		sameSite: "Strict",
 		path: "/",
-		maxAge: Math.floor(REFRESH_TOKEN_EXPIRATION_MS / 1000),
-	});
+	};
+
+	if (rememberMe) {
+		cookieOptions.maxAge = Math.floor(REFRESH_TOKEN_EXPIRATION_MS / 1000);
+	}
+
+	setCookie(c, REFRESH_TOKEN_COOKIE_NAME, token, cookieOptions);
 }
 
 /**
@@ -134,6 +145,33 @@ export async function getRefreshTokenFromCookie(
 }
 
 /**
+ * Sets the temporary session cookie (session cookie - no maxAge).
+ *
+ * @param c - The Hono context
+ * @param token - The temporary session token to set
+ */
+export function setTempSessionCookie(c: Context, token: string): void {
+	setCookie(c, TEMP_SESSION_COOKIE_NAME, token, {
+		httpOnly: true,
+		secure: true,
+		sameSite: "Strict",
+		path: "/",
+		// No maxAge = session cookie (deleted when browser closes)
+	});
+}
+
+/**
+ * Retrieves the temporary session token from the cookie.
+ *
+ * @param c - The Hono context
+ * @returns The temporary session token if present, null otherwise
+ */
+export function getTempSessionTokenFromCookie(c: Context): string | null {
+	const token = getCookie(c, TEMP_SESSION_COOKIE_NAME);
+	return token ?? null;
+}
+
+/**
  * Clears authentication cookies.
  *
  * @param c - The Hono context
@@ -141,4 +179,5 @@ export async function getRefreshTokenFromCookie(
 export function clearAuthCookies(c: Context): void {
 	deleteCookie(c, ACCESS_TOKEN_COOKIE_NAME, { path: "/" });
 	deleteCookie(c, REFRESH_TOKEN_COOKIE_NAME, { path: "/" });
+	deleteCookie(c, TEMP_SESSION_COOKIE_NAME, { path: "/" });
 }

@@ -23,13 +23,19 @@ bun run biome && bun run tsc && bun run test:unit
 ```
 
 ```sh
-bun run test:e2e
+bun run build:e2e && bun run test:e2e
 ```
 
 ## Preview
 
 ```sh
-bun run preview
+bun run build:prod && bun run preview
 ```
 
 Open http://localhost:8787 in your browser.
+
+## Deploy
+
+```sh
+wrangler deploy
+```

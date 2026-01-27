@@ -56,6 +56,7 @@ type ResponseText = "OK" | "Bad Request" | "Conflict"
 type RequestJSON = {
     email: string;
     password: string;
+    rememberMe?: boolean; // default: true
 }
 
 type ResponseText = "OK" | "Bad Request" | "Not Found" | "Unauthorized" | "Too Many Requests"
@@ -67,7 +68,9 @@ type ResponseText = "OK" | "Bad Request" | "Not Found" | "Unauthorized" | "Too M
 3. Returns `429 Too Many Requests` if login attempts exceed the threshold
 4. Returns `401 Unauthorized` if the password is incorrect (increments failed attempts)
 5. Resets failed attempts on successful login
-6. Issues a JWT and sets it as an HTTP-only cookie
+6. Issues access token (15 min) and refresh token as HTTP-only cookies
+    - If `rememberMe` is true (default): refresh token has 30-day expiration
+    - If `rememberMe` is false: refresh token is a session cookie (deleted when browser closes)
 7. Returns `200 OK`
 
 ### `POST /api/v1/logout`

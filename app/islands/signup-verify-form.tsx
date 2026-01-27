@@ -18,6 +18,7 @@ function ValidationIcon({ isValid }: { isValid: boolean }) {
 export default function SignupVerifyForm({ email, token }: Props) {
 	const [password, setPassword] = useState("");
 	const [passwordConfirm, setPasswordConfirm] = useState("");
+	const [rememberMe, setRememberMe] = useState(true);
 	const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
 	const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,7 +35,7 @@ export default function SignupVerifyForm({ email, token }: Props) {
 		setErrorMessage("");
 
 		const response = await apiClient.v1.signup.verify.$post({
-			json: { signupSessionToken: token, password },
+			json: { signupSessionToken: token, password, rememberMe },
 		});
 
 		if (response.ok) {
@@ -55,14 +56,17 @@ export default function SignupVerifyForm({ email, token }: Props) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} class="space-y-6">
+		<form id="signup-verify-form" onSubmit={handleSubmit} class="space-y-6">
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">
+				<label
+					for="signup-verify-email"
+					class="block text-sm font-medium text-gray-700"
+				>
 					メールアドレス
 				</label>
 				<input
 					type="email"
-					id="email"
+					id="signup-verify-email"
 					value={email}
 					disabled
 					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-600"
@@ -70,12 +74,15 @@ export default function SignupVerifyForm({ email, token }: Props) {
 			</div>
 
 			<div>
-				<label for="password" class="block text-sm font-medium text-gray-700">
+				<label
+					for="signup-verify-password"
+					class="block text-sm font-medium text-gray-700"
+				>
 					パスワード
 				</label>
 				<input
 					type="password"
-					id="password"
+					id="signup-verify-password"
 					value={password}
 					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
 					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
@@ -113,14 +120,14 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 			<div>
 				<label
-					for="passwordConfirm"
+					for="signup-verify-password-confirm"
 					class="block text-sm font-medium text-gray-700"
 				>
 					パスワード（確認用）
 				</label>
 				<input
 					type="password"
-					id="passwordConfirm"
+					id="signup-verify-password-confirm"
 					value={passwordConfirm}
 					onInput={(e) =>
 						setPasswordConfirm((e.target as HTMLInputElement).value)
@@ -139,10 +146,35 @@ export default function SignupVerifyForm({ email, token }: Props) {
 				)}
 			</div>
 
+			<div class="flex items-center">
+				<input
+					type="checkbox"
+					id="signup-verify-remember-me"
+					checked={rememberMe}
+					onChange={(e) =>
+						setRememberMe((e.target as HTMLInputElement).checked)
+					}
+					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+					disabled={status === "loading"}
+				/>
+				<label
+					for="signup-verify-remember-me"
+					class="ml-2 block text-sm text-gray-700"
+				>
+					ログイン状態を保持する
+				</label>
+			</div>
+			{!rememberMe && (
+				<p class="text-xs text-gray-500">
+					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
+				</p>
+			)}
+
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 
 			<button
 				type="submit"
+				id="signup-verify-submit"
 				disabled={!canSubmit}
 				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
