@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+	body {
+		@apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+	}
+}
+
 .gsi-material-button {
 	-moz-user-select: none;
 	-webkit-user-select: none;
