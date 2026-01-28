@@ -1,7 +1,7 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "bc28eca7-494d-4d6c-be4c-25ae456afe99",
+	"id": "c6d322d7-6cdc-41b9-843d-71853a6021f6",
 	"prevId": "00000000-0000-0000-0000-000000000000",
 	"tables": {
 		"login_rate_limits": {
@@ -102,6 +102,50 @@
 				"login_sessions_refresh_token_hash_unique": {
 					"name": "login_sessions_refresh_token_hash_unique",
 					"columns": ["refresh_token_hash"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
+		"password_reset_sessions": {
+			"name": "password_reset_sessions",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"email": {
+					"name": "email",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"token_hash": {
+					"name": "token_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"password_reset_sessions_token_hash_unique": {
+					"name": "password_reset_sessions_token_hash_unique",
+					"columns": ["token_hash"],
 					"isUnique": true
 				}
 			},

@@ -63,7 +63,6 @@ export default function LoginForm(): JSX.Element {
 				placeholder="example@example.com"
 				required
 				disabled={status === "loading"}
-				color="primary"
 			/>
 			<TextInput
 				id="login-password"
@@ -73,7 +72,6 @@ export default function LoginForm(): JSX.Element {
 				onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
 				required
 				disabled={status === "loading"}
-				color="secondary"
 			/>
 			<Checkbox
 				id="login-remember-me"

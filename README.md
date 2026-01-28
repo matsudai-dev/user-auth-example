@@ -26,6 +26,16 @@ bun run biome && bun run tsc && bun run test:unit
 bun run build:e2e && bun run test:e2e
 ```
 
+## Git
+
+```sh
+git fetch; git checkout main; git pull; git checkout -b release/X.Y.Z main
+```
+
+```sh
+git fetch; git checkout release/X.Y.Z; git pull; git checkout -b feature/#n release/X.Y.Z
+```
+
 ## Preview
 
 ```sh

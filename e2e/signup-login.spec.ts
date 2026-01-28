@@ -102,9 +102,83 @@ test.describe("Signup and Login Happy Path", () => {
 		await expect(page.locator("h1")).toHaveText("ホーム");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		// Cleanup: delete the test email
+		// 13. Delete signup email before password reset test
 		if (email.id) {
 			await mailosaur.messages.del(email.id);
+		}
+
+		// 14. Navigate to settings and logout again for password reset test
+		await page.click('[data-testid="settings-link"]');
+		await expect(page.locator("h1")).toHaveText("設定");
+		await page.click("#logout-button");
+		await page.waitForURL("/", { timeout: 10000 });
+
+		// 15. Navigate to password reset page via login page
+		await page.click('[data-testid="login-link"]');
+		await expect(page.locator("h1")).toHaveText("ログイン");
+		await page.click('a[href="/password-reset"]');
+		await expect(page.locator("h1")).toHaveText("パスワードリセット");
+
+		// 16. Submit password reset form
+		// Wait for password reset form to be hydrated (interactive)
+		await page.waitForSelector("#password-reset-form", { state: "attached" });
+		await page.locator("#password-reset-email").fill(testEmail);
+		await page.locator("#password-reset-submit").click();
+
+		// Wait for success message
+		await expect(
+			page.locator(
+				"text=パスワードリセット用のメールを送信しました。メールをご確認ください。",
+			),
+		).toBeVisible({ timeout: 10000 });
+
+		// 17. Retrieve password reset email from Mailosaur and extract reset link
+		const resetEmail = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
+			sentTo: testEmail,
+		});
+
+		expect(resetEmail.html?.links).toBeDefined();
+		const resetLink = resetEmail.html?.links?.find((link) =>
+			link.href?.includes("/password-reset/verify"),
+		);
+		expect(resetLink?.href).toBeDefined();
+
+		// 18. Access reset link and set new password
+		await page.goto(resetLink?.href ?? "");
+		await expect(page.locator("h1")).toHaveText("パスワード再設定");
+
+		const displayedResetEmail = page.locator("#password-reset-verify-email");
+		await expect(displayedResetEmail).toHaveValue(testEmail);
+
+		const newPassword = "NewTestPass456!";
+		await page.locator("#password-reset-verify-password").fill(newPassword);
+		await page
+			.locator("#password-reset-verify-password-confirm")
+			.fill(newPassword);
+
+		const resetSubmitButton = page.locator("#password-reset-verify-submit");
+		await expect(resetSubmitButton).toBeEnabled();
+		await resetSubmitButton.click();
+
+		// Wait for navigation to login page after password reset
+		await page.waitForURL("/login", { timeout: 10000 });
+		await expect(page.locator("h1")).toHaveText("ログイン");
+
+		// 19. Login with new password
+		await page.locator("#login-email").fill(testEmail);
+		await page.locator("#login-password").fill(newPassword);
+		await page.locator("#login-submit").click();
+
+		// Wait for navigation to complete after login
+		await page.waitForURL("/", { timeout: 10000 });
+
+		// Verify successful login with new password
+		await expect(page.locator("h1")).toHaveText("ホーム");
+		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+
+		// Cleanup: delete the password reset email
+		if (resetEmail.id) {
+			await mailosaur.messages.del(resetEmail.id);
 		}
 	});
 });

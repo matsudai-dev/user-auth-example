@@ -80,3 +80,18 @@ export const temporarySessionsTable = sqliteTable("temporary_sessions", {
 	/** Timestamp of last access (for cleanup purposes) */
 	lastAccessedAt: timestamp("last_accessed_at").notNull().default(now()),
 });
+
+/** `password_reset_sessions` table schema definition */
+export const passwordResetSessionsTable = sqliteTable(
+	"password_reset_sessions",
+	{
+		/** UUIDv7 */
+		id: text("id").primaryKey(),
+		/** Email address for password reset */
+		email: text("email").notNull(),
+		/** SHA-256 hash of the reset token */
+		tokenHash: text("token_hash").notNull().unique(),
+		/** Expiration timestamp */
+		expiresAt: timestamp("expires_at").notNull(),
+	},
+);
