@@ -1,3 +1,4 @@
+import DarkModeSwitch from "@/islands/dark-mode-switch";
 import LogoutButton from "@/islands/logout-button";
 import { createAuthenticatedRoute } from "@/utils/factory/hono";
 
@@ -16,6 +17,9 @@ export default createAuthenticatedRoute((c) => {
 							<p id="settings-email" class="mt-1">
 								{user.email}
 							</p>
+						</div>
+						<div class="pt-4 border-t">
+							<DarkModeSwitch />
 						</div>
 						<div class="pt-4 border-t">
 							<LogoutButton />

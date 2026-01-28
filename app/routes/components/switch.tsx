@@ -38,11 +38,19 @@ export default createRoute((c) => {
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Disabled Off</span>
-									<Switch id="default-disabled-off" defaultChecked={false} disabled />
+									<Switch
+										id="default-disabled-off"
+										defaultChecked={false}
+										disabled
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Disabled On</span>
-									<Switch id="default-disabled-on" defaultChecked={true} disabled />
+									<Switch
+										id="default-disabled-on"
+										defaultChecked={true}
+										disabled
+									/>
 								</div>
 							</div>
 						</section>
@@ -54,11 +62,19 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-emerald-200 dark:border-emerald-800">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Off State</span>
-									<Switch id="primary-off" defaultChecked={false} color="primary" />
+									<Switch
+										id="primary-off"
+										defaultChecked={false}
+										color="primary"
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="primary-on" defaultChecked={true} color="primary" />
+									<Switch
+										id="primary-on"
+										defaultChecked={true}
+										color="primary"
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
@@ -105,7 +121,11 @@ export default createRoute((c) => {
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="secondary-on" defaultChecked={true} color="secondary" />
+									<Switch
+										id="secondary-on"
+										defaultChecked={true}
+										color="secondary"
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
@@ -142,7 +162,11 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-red-200 dark:border-red-800">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Off State</span>
-									<Switch id="danger-off" defaultChecked={false} color="danger" />
+									<Switch
+										id="danger-off"
+										defaultChecked={false}
+										color="danger"
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
@@ -187,7 +211,11 @@ export default createRoute((c) => {
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Primary</span>
-									<Switch id="compare-primary" defaultChecked={true} color="primary" />
+									<Switch
+										id="compare-primary"
+										defaultChecked={true}
+										color="primary"
+									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Secondary</span>
@@ -199,7 +227,11 @@ export default createRoute((c) => {
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Danger</span>
-									<Switch id="compare-danger" defaultChecked={true} color="danger" />
+									<Switch
+										id="compare-danger"
+										defaultChecked={true}
+										color="danger"
+									/>
 								</div>
 							</div>
 						</section>
