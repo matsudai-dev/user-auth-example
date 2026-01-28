@@ -1,7 +1,11 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
+import Button from "@/islands/ui/button";
+import Checkbox from "@/islands/ui/checkbox";
+import { TextInput } from "@/islands/ui/text-input";
 import { apiClient } from "@/utils/api-client";
 
-export default function LoginForm() {
+export default function LoginForm(): JSX.Element {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [rememberMe, setRememberMe] = useState(true);
@@ -50,70 +54,51 @@ export default function LoginForm() {
 
 	return (
 		<form id="login-form" onSubmit={handleSubmit} class="space-y-4">
-			<div>
-				<label
-					for="login-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="login-email"
-					value={email}
-					onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					placeholder="example@example.com"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
-			<div>
-				<label
-					for="login-password"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード
-				</label>
-				<input
-					type="password"
-					id="login-password"
-					value={password}
-					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
-			<div class="flex items-center">
-				<input
-					type="checkbox"
-					id="login-remember-me"
-					checked={rememberMe}
-					onChange={(e) =>
-						setRememberMe((e.target as HTMLInputElement).checked)
-					}
-					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
-					disabled={status === "loading"}
-				/>
-				<label for="login-remember-me" class="ml-2 block text-sm text-gray-700">
-					ログイン状態を保持する
-				</label>
-			</div>
+			<TextInput
+				id="login-email"
+				label="メールアドレス"
+				type="email"
+				value={email}
+				onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+				placeholder="example@example.com"
+				required
+				disabled={status === "loading"}
+				color="primary"
+			/>
+			<TextInput
+				id="login-password"
+				label="パスワード"
+				type="password"
+				value={password}
+				onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+				required
+				disabled={status === "loading"}
+				color="secondary"
+			/>
+			<Checkbox
+				id="login-remember-me"
+				defaultChecked={rememberMe}
+				onChange={setRememberMe}
+				disabled={status === "loading"}
+				color="primary"
+			>
+				ログイン状態を保持する
+			</Checkbox>
 			{!rememberMe && (
 				<p class="text-xs text-gray-500">
 					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
 				</p>
 			)}
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
-			<button
-				type="submit"
+			<Button
 				id="login-submit"
+				type="submit"
+				color="primary"
+				fullWidth
 				disabled={status === "loading"}
-				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{status === "loading" ? "ログイン中..." : "ログイン"}
-			</button>
+			</Button>
 		</form>
 	);
 }

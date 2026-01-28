@@ -1,5 +1,9 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
 import { PASSWORD_MIN_LENGTH } from "@/consts";
+import Button from "@/islands/ui/button";
+import Checkbox from "@/islands/ui/checkbox";
+import { TextInput } from "@/islands/ui/text-input";
 import { apiClient } from "@/utils/api-client";
 import { validatePassword } from "@/utils/validation";
 
@@ -8,7 +12,7 @@ type Props = {
 	token: string;
 };
 
-function ValidationIcon({ isValid }: { isValid: boolean }) {
+function ValidationIcon({ isValid }: { isValid: boolean }): JSX.Element {
 	if (isValid) {
 		return <span class="text-green-600">&#10003;</span>;
 	}
@@ -57,35 +61,21 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 	return (
 		<form id="signup-verify-form" onSubmit={handleSubmit} class="space-y-6">
-			<div>
-				<label
-					for="signup-verify-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="signup-verify-email"
-					value={email}
-					disabled
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-600"
-				/>
-			</div>
+			<TextInput
+				label="メールアドレス"
+				type="email"
+				id="signup-verify-email"
+				value={email}
+				disabled
+			/>
 
 			<div>
-				<label
-					for="signup-verify-password"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード
-				</label>
-				<input
-					type="password"
+				<TextInput
 					id="signup-verify-password"
+					label="パスワード"
+					type="password"
 					value={password}
 					onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
 					disabled={status === "loading"}
 				/>
 				<ul class="mt-2 text-sm space-y-1">
@@ -119,20 +109,14 @@ export default function SignupVerifyForm({ email, token }: Props) {
 			</div>
 
 			<div>
-				<label
-					for="signup-verify-password-confirm"
-					class="block text-sm font-medium text-gray-700"
-				>
-					パスワード（確認用）
-				</label>
-				<input
-					type="password"
+				<TextInput
 					id="signup-verify-password-confirm"
+					label="パスワード（確認用）"
+					type="password"
 					value={passwordConfirm}
 					onInput={(e) =>
 						setPasswordConfirm((e.target as HTMLInputElement).value)
 					}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
 					disabled={status === "loading"}
 				/>
 				{passwordConfirm.length > 0 && (
@@ -146,24 +130,15 @@ export default function SignupVerifyForm({ email, token }: Props) {
 				)}
 			</div>
 
-			<div class="flex items-center">
-				<input
-					type="checkbox"
-					id="signup-verify-remember-me"
-					checked={rememberMe}
-					onChange={(e) =>
-						setRememberMe((e.target as HTMLInputElement).checked)
-					}
-					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
-					disabled={status === "loading"}
-				/>
-				<label
-					for="signup-verify-remember-me"
-					class="ml-2 block text-sm text-gray-700"
-				>
-					ログイン状態を保持する
-				</label>
-			</div>
+			<Checkbox
+				id="signup-verify-remember-me"
+				defaultChecked={rememberMe}
+				onChange={setRememberMe}
+				disabled={status === "loading"}
+				color="primary"
+			>
+				ログイン状態を保持する
+			</Checkbox>
 			{!rememberMe && (
 				<p class="text-xs text-gray-500">
 					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
@@ -172,14 +147,15 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 
-			<button
-				type="submit"
+			<Button
 				id="signup-verify-submit"
+				type="submit"
+				color="primary"
+				fullWidth
 				disabled={!canSubmit}
-				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{status === "loading" ? "登録中..." : "登録する"}
-			</button>
+			</Button>
 		</form>
 	);
 }

@@ -49,6 +49,10 @@ This is a user authentication sample application.
 ## Working with GitHub
 For all GitHub operations (creating issues, pull requests, searching code, etc.), use `gh` command.
 
+### General guidelines
+- Do not add comments to GitHub issues unless explicitly instructed
+- Do not edit existing issues unless explicitly instructed
+
 ### Creating issues
 - Use clear, descriptive titles starting with a verb (e.g., "Add", "Fix", "Update")
 - Structure the description with:

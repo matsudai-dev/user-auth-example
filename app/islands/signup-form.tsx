@@ -1,7 +1,10 @@
 import { useState } from "hono/jsx";
+import type { JSX } from "hono/jsx/jsx-runtime";
+import Button from "@/islands/ui/button";
+import { TextInput } from "@/islands/ui/text-input";
 import { apiClient } from "@/utils/api-client";
 
-export default function SignupForm() {
+export default function SignupForm(): JSX.Element {
 	const [email, setEmail] = useState("");
 	const [status, setStatus] = useState<
 		"idle" | "loading" | "success" | "error"
@@ -46,33 +49,26 @@ export default function SignupForm() {
 
 	return (
 		<form id="signup-form" onSubmit={handleSubmit} class="space-y-4">
-			<div>
-				<label
-					for="signup-email"
-					class="block text-sm font-medium text-gray-700"
-				>
-					メールアドレス
-				</label>
-				<input
-					type="email"
-					id="signup-email"
-					value={email}
-					onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-					class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-					placeholder="example@example.com"
-					required
-					disabled={status === "loading"}
-				/>
-			</div>
-			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
-			<button
-				type="submit"
-				id="signup-submit"
+			<TextInput
+				id="signup-email"
+				label="メールアドレス"
+				type="email"
+				value={email}
+				onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
+				placeholder="example@example.com"
+				required
 				disabled={status === "loading"}
-				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+			/>
+			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
+			<Button
+				id="signup-submit"
+				type="submit"
+				color="primary"
+				fullWidth
+				disabled={status === "loading"}
 			>
 				{status === "loading" ? "送信中..." : "招待メールを送信"}
-			</button>
+			</Button>
 		</form>
 	);
 }
