@@ -94,14 +94,29 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 ## Development workflows
 
 ### Plan A
-When the repository administrator ends a coding request with "プランAで対応して", follow this workflow:
+When the repository administrator ends a coding request with "Plan A", follow this workflow:
 
 1. Create an issue for the task
 2. Fetch, checkout `release/X.Y.Z`, pull, then create and checkout `feature/#n` from `release/X.Y.Z`
-3. Implement by referencing existing code patterns
-4. Create unit tests for pure functions
-5. Update E2E tests if new happy paths are added
-6. Run verification command: `docker exec user-auth-app bash -c "bun run biome && bun run tsc && bun run test:unit"`
-7. If verification succeeds, or after 3 attempts without resolution, request review from the repository administrator
-8. Address feedback from the repository administrator
-9. When the administrator requests a PR, commit, push, and create a pull request
+3. Update `package.json` version: use the release branch version (e.g., for `release/1.3.0` , update to `1.3.0` )
+4. Implement by referencing existing code patterns
+5. Create unit tests for pure functions
+6. Update E2E tests if new happy paths are added
+7. Run verification command: `docker exec user-auth-app bash -c "bun run biome && bun run tsc && bun run test:unit"`
+8. If verification succeeds, or after 3 attempts without resolution, request review from the repository administrator
+9. Address feedback from the repository administrator
+10. When the administrator requests a PR, commit, push, and create a pull request
+
+### Plan B
+When the repository administrator ends a coding request with "Plan B", follow this workflow:
+
+1. Create an issue for the task
+2. Fetch, checkout `main`, pull, then create and checkout `feature/#n` from `main`
+3. Update `package.json` version: check the latest tag and increment the minor version (e.g., if latest tag is `v1.3.0` , update to `1.4.0` )
+4. Implement by referencing existing code patterns
+5. Create unit tests for pure functions
+6. Update E2E tests if new happy paths are added
+7. Run verification command: `docker exec user-auth-app bash -c "bun run biome && bun run tsc && bun run test:unit"`
+8. If verification succeeds, or after 3 attempts without resolution, request review from the repository administrator
+9. Address feedback from the repository administrator
+10. When the administrator requests a PR, commit, push, and create a pull request

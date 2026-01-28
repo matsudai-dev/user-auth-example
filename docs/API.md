@@ -6,6 +6,7 @@
     - [`POST /api/v1/signup/verify`](#POST-apiv1signupverify) : Verify signup session and create user account.
     - [`POST /api/v1/login`](#POST-apiv1login) : Authenticate user and issue JWT.
     - [`POST /api/v1/logout`](#POST-apiv1logout) : Clear authentication cookies and invalidate session.
+    - [`POST /api/v1/password-change`](#POST-apiv1password-change) : Change password for authenticated user.
     - [`POST /api/v1/password-reset`](#POST-apiv1password-reset) : Send password reset email.
     - [`POST /api/v1/password-reset/verify`](#POST-apiv1password-resetverify) : Verify reset token and update password.
 
@@ -86,6 +87,30 @@ type ResponseText = "OK" | "Unauthorized"
 2. Deletes the current login session from `login_sessions` table
 3. Clears access token and refresh token cookies
 4. Returns `200 OK`
+
+### `POST /api/v1/password-change`
+
+```ts
+type RequestJSON = {
+    currentPassword: string;
+    newPassword: string;
+}
+
+type ResponseText = "OK" | "Bad Request" | "Unauthorized"
+```
+
+#### Password Requirements
+- At least 8 characters
+- Contains 3 or more types from: lowercase letters, uppercase letters, numbers, symbols
+- Not similar to the email address
+
+#### Flow
+1. Returns `401 Unauthorized` if not authenticated
+2. Returns `400 Bad Request` if the request body is not valid JSON
+3. Returns `401 Unauthorized` if the current password is incorrect
+4. Returns `400 Bad Request` if the new password does not meet requirements
+5. Updates the user's password in the `users` table
+6. Returns `200 OK`
 
 ### `POST /api/v1/password-reset`
 

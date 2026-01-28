@@ -176,6 +176,47 @@ test.describe("Signup and Login Happy Path", () => {
 		await expect(page.locator("h1")).toHaveText("ホーム");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
+		// 20. Navigate to settings page for password change test
+		await page.click('[data-testid="settings-link"]');
+		await expect(page.locator("h1")).toHaveText("設定");
+
+		// 21. Change password via settings form
+		const changedPassword = "ChangedPass789!";
+		await page.waitForSelector("#password-change-form", { state: "attached" });
+		await page.locator("#password-change-current").fill(newPassword);
+		await page.locator("#password-change-new").fill(changedPassword);
+		await page.locator("#password-change-new-confirm").fill(changedPassword);
+
+		const passwordChangeSubmit = page.locator("#password-change-submit");
+		await expect(passwordChangeSubmit).toBeEnabled();
+		await passwordChangeSubmit.click();
+
+		// Wait for success message
+		await expect(page.locator("text=パスワードを変更しました")).toBeVisible({
+			timeout: 10000,
+		});
+
+		// 22. Logout after password change
+		await page.click("#logout-button");
+		await page.waitForURL("/", { timeout: 10000 });
+		await expect(page.locator("h1")).toHaveText("ホーム");
+
+		// 23. Login with changed password
+		await page.click('[data-testid="login-link"]');
+		await expect(page.locator("h1")).toHaveText("ログイン");
+
+		await page.waitForSelector("#login-form", { state: "attached" });
+		await page.locator("#login-email").fill(testEmail);
+		await page.locator("#login-password").fill(changedPassword);
+		await page.locator("#login-submit").click();
+
+		// Wait for navigation to complete after login
+		await page.waitForURL("/", { timeout: 10000 });
+
+		// Verify successful login with changed password
+		await expect(page.locator("h1")).toHaveText("ホーム");
+		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+
 		// Cleanup: delete the password reset email
 		if (resetEmail.id) {
 			await mailosaur.messages.del(resetEmail.id);
