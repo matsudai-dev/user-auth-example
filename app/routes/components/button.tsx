@@ -1,6 +1,6 @@
 import { createRoute } from "honox/factory";
-import Button from "@/islands/button";
 import FloatingThemeToggle from "@/islands/floating-theme-toggle";
+import Button from "@/islands/ui/button";
 
 export default createRoute((c) => {
 	return c.render(

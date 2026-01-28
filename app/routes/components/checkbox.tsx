@@ -1,6 +1,6 @@
 import { createRoute } from "honox/factory";
-import Checkbox from "@/islands/checkbox";
 import FloatingThemeToggle from "@/islands/floating-theme-toggle";
+import Checkbox from "@/islands/ui/checkbox";
 
 export default createRoute((c) => {
 	return c.render(

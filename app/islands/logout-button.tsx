@@ -1,7 +1,7 @@
 import { useState } from "hono/jsx";
 import type { JSX } from "hono/jsx/jsx-runtime";
+import Button from "@/islands/ui/button";
 import { apiClient } from "@/utils/api-client";
-import Button from "./button";
 
 export default function LogoutButton(): JSX.Element {
 	const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");

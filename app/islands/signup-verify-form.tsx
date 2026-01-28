@@ -1,11 +1,11 @@
 import { useState } from "hono/jsx";
 import type { JSX } from "hono/jsx/jsx-runtime";
-import { TextInput } from "@/components/text-input";
 import { PASSWORD_MIN_LENGTH } from "@/consts";
+import Button from "@/islands/ui/button";
+import Checkbox from "@/islands/ui/checkbox";
+import { TextInput } from "@/islands/ui/text-input";
 import { apiClient } from "@/utils/api-client";
 import { validatePassword } from "@/utils/validation";
-import Button from "./button";
-import Checkbox from "./checkbox";
 
 type Props = {
 	email: string;
