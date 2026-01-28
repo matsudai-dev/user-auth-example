@@ -1,5 +1,5 @@
 import { createRoute } from "honox/factory";
-import { Switch } from "@/components/switch";
+import Switch from "@/islands/switch";
 
 export default createRoute((c) => {
 	return c.render(
@@ -22,27 +22,27 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Off State</span>
-									<Switch id="default-off" checked={false} />
+									<Switch id="default-off" defaultChecked={false} />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="default-on" checked={true} />
+									<Switch id="default-on" defaultChecked={true} />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
 									<Switch
 										id="default-label"
 										label="Enable notifications"
-										checked={true}
+										defaultChecked={true}
 									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Disabled Off</span>
-									<Switch id="default-disabled-off" checked={false} disabled />
+									<Switch id="default-disabled-off" defaultChecked={false} disabled />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Disabled On</span>
-									<Switch id="default-disabled-on" checked={true} disabled />
+									<Switch id="default-disabled-on" defaultChecked={true} disabled />
 								</div>
 							</div>
 						</section>
@@ -54,18 +54,18 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-emerald-200 dark:border-emerald-800">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Off State</span>
-									<Switch id="primary-off" checked={false} color="primary" />
+									<Switch id="primary-off" defaultChecked={false} color="primary" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="primary-on" checked={true} color="primary" />
+									<Switch id="primary-on" defaultChecked={true} color="primary" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
 									<Switch
 										id="primary-label"
 										label="Auto-save enabled"
-										checked={true}
+										defaultChecked={true}
 										color="primary"
 									/>
 								</div>
@@ -73,7 +73,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled Off</span>
 									<Switch
 										id="primary-disabled-off"
-										checked={false}
+										defaultChecked={false}
 										color="primary"
 										disabled
 									/>
@@ -82,7 +82,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled On</span>
 									<Switch
 										id="primary-disabled-on"
-										checked={true}
+										defaultChecked={true}
 										color="primary"
 										disabled
 									/>
@@ -99,20 +99,20 @@ export default createRoute((c) => {
 									<span class="text-sm">Off State</span>
 									<Switch
 										id="secondary-off"
-										checked={false}
+										defaultChecked={false}
 										color="secondary"
 									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="secondary-on" checked={true} color="secondary" />
+									<Switch id="secondary-on" defaultChecked={true} color="secondary" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
 									<Switch
 										id="secondary-label"
 										label="Dark mode"
-										checked={false}
+										defaultChecked={false}
 										color="secondary"
 									/>
 								</div>
@@ -120,7 +120,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled Off</span>
 									<Switch
 										id="secondary-disabled-off"
-										checked={false}
+										defaultChecked={false}
 										color="secondary"
 										disabled
 									/>
@@ -129,7 +129,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled On</span>
 									<Switch
 										id="secondary-disabled-on"
-										checked={true}
+										defaultChecked={true}
 										color="secondary"
 										disabled
 									/>
@@ -142,18 +142,18 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-red-200 dark:border-red-800">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Off State</span>
-									<Switch id="danger-off" checked={false} color="danger" />
+									<Switch id="danger-off" defaultChecked={false} color="danger" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">On State</span>
-									<Switch id="danger-on" checked={true} color="danger" />
+									<Switch id="danger-on" defaultChecked={true} color="danger" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">With Label</span>
 									<Switch
 										id="danger-label"
 										label="Delete account permanently"
-										checked={false}
+										defaultChecked={false}
 										color="danger"
 									/>
 								</div>
@@ -161,7 +161,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled Off</span>
 									<Switch
 										id="danger-disabled-off"
-										checked={false}
+										defaultChecked={false}
 										color="danger"
 										disabled
 									/>
@@ -170,7 +170,7 @@ export default createRoute((c) => {
 									<span class="text-sm">Disabled On</span>
 									<Switch
 										id="danger-disabled-on"
-										checked={true}
+										defaultChecked={true}
 										color="danger"
 										disabled
 									/>
@@ -183,23 +183,23 @@ export default createRoute((c) => {
 							<div class="space-y-4 p-6 rounded-lg border border-neutral-200 dark:border-neutral-700">
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Default</span>
-									<Switch id="compare-default" checked={true} />
+									<Switch id="compare-default" defaultChecked={true} />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Primary</span>
-									<Switch id="compare-primary" checked={true} color="primary" />
+									<Switch id="compare-primary" defaultChecked={true} color="primary" />
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Secondary</span>
 									<Switch
 										id="compare-secondary"
-										checked={true}
+										defaultChecked={true}
 										color="secondary"
 									/>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-sm">Danger</span>
-									<Switch id="compare-danger" checked={true} color="danger" />
+									<Switch id="compare-danger" defaultChecked={true} color="danger" />
 								</div>
 							</div>
 						</section>
