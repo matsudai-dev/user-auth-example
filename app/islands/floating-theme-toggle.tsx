@@ -4,7 +4,7 @@ import Switch from "./switch";
 
 const STORAGE_KEY = "theme";
 
-export default function DarkModeSwitch(): JSX.Element {
+export default function FloatingThemeToggle(): JSX.Element {
 	const [initialized, setInitialized] = useState(false);
 	const [isDark, setIsDark] = useState(false);
 
@@ -34,26 +34,21 @@ export default function DarkModeSwitch(): JSX.Element {
 		localStorage.setItem(STORAGE_KEY, checked ? "dark" : "light");
 	};
 
-	if (!initialized) {
-		return (
-			<div class="flex items-center justify-between">
-				<span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-					ダークモード
-				</span>
-				<div class="h-6 w-11" />
-			</div>
-		);
-	}
-
 	return (
-		<div class="flex items-center justify-between">
-			<Switch
-				id="dark-mode-switch"
-				label="dark"
-				color="primary"
-				defaultChecked={isDark}
-				onChange={handleChange}
-			/>
+		<div class="fixed top-4 right-4 z-50 p-3 rounded-lg shadow-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+			<div class="flex items-center gap-2">
+				{initialized ? (
+					<Switch
+						id="floating-dark-mode-switch"
+						label="dark"
+						color="primary"
+						defaultChecked={isDark}
+						onChange={handleChange}
+					/>
+				) : (
+					<div class="h-6 w-11" />
+				)}
+			</div>
 		</div>
 	);
 }
