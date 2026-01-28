@@ -2,6 +2,7 @@ import { useState } from "hono/jsx";
 import type { JSX } from "hono/jsx/jsx-runtime";
 import { TextInput } from "@/components/text-input";
 import { apiClient } from "@/utils/api-client";
+import Button from "./button";
 
 export default function SignupForm(): JSX.Element {
 	const [email, setEmail] = useState("");
@@ -59,14 +60,15 @@ export default function SignupForm(): JSX.Element {
 				disabled={status === "loading"}
 			/>
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
-			<button
-				type="submit"
+			<Button
 				id="signup-submit"
+				type="submit"
+				color="primary"
+				fullWidth
 				disabled={status === "loading"}
-				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{status === "loading" ? "送信中..." : "招待メールを送信"}
-			</button>
+			</Button>
 		</form>
 	);
 }

@@ -4,6 +4,7 @@ import { TextInput } from "@/components/text-input";
 import { PASSWORD_MIN_LENGTH } from "@/consts";
 import { apiClient } from "@/utils/api-client";
 import { validatePassword } from "@/utils/validation";
+import Button from "./button";
 
 type Props = {
 	email: string;
@@ -154,14 +155,15 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 
-			<button
-				type="submit"
+			<Button
 				id="signup-verify-submit"
+				type="submit"
+				color="primary"
+				fullWidth
 				disabled={!canSubmit}
-				class="w-full px-4 py-2 bg-orange-400 text-white rounded cursor-pointer hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{status === "loading" ? "登録中..." : "登録する"}
-			</button>
+			</Button>
 		</form>
 	);
 }
