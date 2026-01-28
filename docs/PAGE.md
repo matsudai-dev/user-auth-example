@@ -7,6 +7,8 @@
     - [`/signup`](#signup) : User registration page
     - [`/signup/verify`](#signupverify) : Password setup page after email verification
     - [`/settings`](#settings) : User settings page (requires login)
+    - [`/password-reset`](#password-reset) : Password reset request page
+    - [`/password-reset/verify`](#password-resetverify) : New password setup page
 
 ## Pages
 
@@ -103,3 +105,44 @@ User settings page for managing account.
 4. User clicks logout button
 5. Calls `POST /api/v1/logout`
 6. On success (200): Redirects to `/`
+
+### `/password-reset`
+
+Password reset request page for users who forgot their password.
+
+#### Components
+- Email input field
+- Button to send reset email
+- Link to login page
+
+#### Behavior
+1. User enters their email address
+2. User clicks the send button
+3. Calls `POST /api/v1/password-reset` with the email
+4. On success: Displays a confirmation message
+5. On error: Displays appropriate error message
+
+### `/password-reset/verify`
+
+New password setup page accessed via password reset email link ( `/password-reset/verify?token={password_reset_session_token}` ).
+
+#### Components
+- Email address display (read-only)
+- Password input field with validation indicators:
+    - At least 8 characters
+    - Contains 3+ types from: lowercase, uppercase, numbers, symbols
+    - Not similar to email address
+- Password confirmation input field
+    - Must match password field
+- Submit button
+
+#### Behavior
+1. Token is extracted from URL query parameter
+2. If token is invalid or expired: Displays error message
+3. Email address is displayed (fetched from reset session)
+4. User enters password with real-time validation feedback
+5. User confirms password
+6. User clicks submit button
+7. Calls `POST /api/v1/password-reset/verify` with token and password
+8. On success (200): Redirects to `/login`
+9. On error: Displays appropriate error message

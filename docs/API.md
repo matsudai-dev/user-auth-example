@@ -6,6 +6,8 @@
     - [`POST /api/v1/signup/verify`](#POST-apiv1signupverify) : Verify signup session and create user account.
     - [`POST /api/v1/login`](#POST-apiv1login) : Authenticate user and issue JWT.
     - [`POST /api/v1/logout`](#POST-apiv1logout) : Clear authentication cookies and invalidate session.
+    - [`POST /api/v1/password-reset`](#POST-apiv1password-reset) : Send password reset email.
+    - [`POST /api/v1/password-reset/verify`](#POST-apiv1password-resetverify) : Verify reset token and update password.
 
 ## Endpoints
 
@@ -84,3 +86,44 @@ type ResponseText = "OK" | "Unauthorized"
 2. Deletes the current login session from `login_sessions` table
 3. Clears access token and refresh token cookies
 4. Returns `200 OK`
+
+### `POST /api/v1/password-reset`
+
+```ts
+type RequestJSON = {
+    email: string;
+}
+
+type ResponseText = "OK"
+```
+
+#### Flow
+1. Returns `400 Bad Request` if the request body is not valid JSON
+2. Returns `400 Bad Request` if the email address is invalid
+3. Always returns `200 OK` regardless of whether the user exists (prevents user enumeration)
+4. If user exists: Sends a password reset email with reset URL ( `/password-reset/verify?token={password_reset_session_token}` )
+5. Token expires in 1 hour
+
+### `POST /api/v1/password-reset/verify`
+
+```ts
+type RequestJSON = {
+    passwordResetSessionToken: string;
+    password: string;
+}
+
+type ResponseText = "OK" | "Bad Request"
+```
+
+#### Password Requirements
+- At least 8 characters
+- Contains 3 or more types from: lowercase letters, uppercase letters, numbers, symbols
+- Not similar to the email address
+
+#### Flow
+1. Returns `400 Bad Request` if the request body is not valid JSON
+2. Returns `400 Bad Request` if the reset token is invalid or expired
+3. Returns `400 Bad Request` if the password does not meet requirements
+4. Updates the user's password in the `users` table
+5. Deletes the password reset session
+6. Returns `200 OK`

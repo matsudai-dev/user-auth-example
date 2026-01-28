@@ -27,6 +27,7 @@ This is a user authentication sample application.
     - `middlewares/` - middlewares
     - `routes/` - Page routes and API endpoints
     - `utils/` - Utility functions organized by domain
+- `docs/` - Project documentation (API.md, PAGE.md)
 - `public/` - Static assets
 - `e2e/` - E2E Tests
 

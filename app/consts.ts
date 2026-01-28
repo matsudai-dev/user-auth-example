@@ -7,6 +7,7 @@ export const TOO_MANY_REQUESTS = "Too Many Requests";
 export const INTERNAL_SERVER_ERROR = "Internal Server Error";
 
 export const SIGNUP_SESSION_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 hours
+export const PASSWORD_RESET_SESSION_EXPIRATION_MS = 60 * 60 * 1000; // 1 hour
 
 export const ACCESS_TOKEN_COOKIE_NAME = "access_token";
 export const ACCESS_TOKEN_EXPIRATION_MS = 15 * 60 * 1000; // 15 minutes

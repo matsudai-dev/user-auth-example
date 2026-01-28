@@ -16,6 +16,14 @@ CREATE TABLE `login_sessions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `login_sessions_refresh_token_hash_unique` ON `login_sessions` (`refresh_token_hash`);--> statement-breakpoint
+CREATE TABLE `password_reset_sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`email` text NOT NULL,
+	`token_hash` text NOT NULL,
+	`expires_at` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `password_reset_sessions_token_hash_unique` ON `password_reset_sessions` (`token_hash`);--> statement-breakpoint
 CREATE TABLE `signup_sessions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
