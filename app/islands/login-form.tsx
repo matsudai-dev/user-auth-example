@@ -3,6 +3,7 @@ import type { JSX } from "hono/jsx/jsx-runtime";
 import { TextInput } from "@/components/text-input";
 import { apiClient } from "@/utils/api-client";
 import Button from "./button";
+import Checkbox from "./checkbox";
 
 export default function LoginForm(): JSX.Element {
 	const [email, setEmail] = useState("");
@@ -74,21 +75,15 @@ export default function LoginForm(): JSX.Element {
 				disabled={status === "loading"}
 				color="secondary"
 			/>
-			<div class="flex items-center">
-				<input
-					type="checkbox"
-					id="login-remember-me"
-					checked={rememberMe}
-					onChange={(e) =>
-						setRememberMe((e.target as HTMLInputElement).checked)
-					}
-					class="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
-					disabled={status === "loading"}
-				/>
-				<label for="login-remember-me" class="ml-2 block text-sm text-gray-700">
-					ログイン状態を保持する
-				</label>
-			</div>
+			<Checkbox
+				id="login-remember-me"
+				defaultChecked={rememberMe}
+				onChange={setRememberMe}
+				disabled={status === "loading"}
+				color="primary"
+			>
+				ログイン状態を保持する
+			</Checkbox>
 			{!rememberMe && (
 				<p class="text-xs text-gray-500">
 					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
