@@ -1,6 +1,6 @@
 import { createRoute } from "honox/factory";
-import { TextInput } from "@/components/text-input";
 import FloatingThemeToggle from "@/islands/floating-theme-toggle";
+import { TextInput } from "@/islands/ui/text-input";
 
 export default createRoute((c) => {
 	return c.render(

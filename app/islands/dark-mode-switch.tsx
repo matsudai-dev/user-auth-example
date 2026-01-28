@@ -1,6 +1,6 @@
 import { useEffect, useState } from "hono/jsx";
 import type { JSX } from "hono/jsx/jsx-runtime";
-import Switch from "./switch";
+import Switch from "@/islands/ui/switch";
 
 const STORAGE_KEY = "theme";
 
