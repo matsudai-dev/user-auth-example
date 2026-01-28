@@ -1,10 +1,12 @@
 import { createRoute } from "honox/factory";
 import { TextInput } from "@/components/text-input";
+import FloatingThemeToggle from "@/islands/floating-theme-toggle";
 
 export default createRoute((c) => {
 	return c.render(
 		<>
 			<title>TextInput Examples | User Auth Example</title>
+			<FloatingThemeToggle />
 			<div class="min-h-screen py-12 px-4">
 				<div class="max-w-2xl mx-auto space-y-12">
 					<div>
