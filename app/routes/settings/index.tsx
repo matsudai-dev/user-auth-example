@@ -1,5 +1,6 @@
 import DarkModeSwitch from "@/islands/dark-mode-switch";
 import LogoutButton from "@/islands/logout-button";
+import PasswordChangeForm from "@/islands/password-change-form";
 import { createAuthenticatedRoute } from "@/utils/factory/hono";
 
 export default createAuthenticatedRoute((c) => {
@@ -17,6 +18,10 @@ export default createAuthenticatedRoute((c) => {
 							<p id="settings-email" class="mt-1">
 								{user.email}
 							</p>
+						</div>
+						<div class="pt-4 border-t">
+							<span class="block text-sm font-medium mb-2">パスワード変更</span>
+							<PasswordChangeForm email={user.email} />
 						</div>
 						<div class="pt-4 border-t">
 							<DarkModeSwitch />

@@ -96,15 +96,35 @@ User settings page for managing account.
 
 #### Components
 - User's email address display
+- Password change form:
+    - Current password input field
+    - New password input field with validation indicators:
+        - At least 8 characters
+        - Contains 3+ types from: lowercase, uppercase, numbers, symbols
+        - Not similar to email address
+    - New password confirmation input field
+        - Must match new password field
+    - Submit button ("変更する")
 - Logout button
 
 #### Behavior
 1. `createAuthenticatedRoute` middleware validates authentication
 2. If validation fails: Redirects to `/login?redirect=%2Fsettings`
-3. If validation succeeds: Displays user's email address and logout button
-4. User clicks logout button
-5. Calls `POST /api/v1/logout`
-6. On success (200): Redirects to `/`
+3. If validation succeeds: Displays user's email address, password change form, and logout button
+
+Password change:
+1. User enters current password
+2. User enters new password with real-time validation feedback
+3. User confirms new password
+4. User clicks submit button
+5. Calls `POST /api/v1/password-change` with current and new password
+6. On success (200): Displays success message and clears form
+7. On error: Displays appropriate error message
+
+Logout:
+1. User clicks logout button
+2. Calls `POST /api/v1/logout`
+3. On success (200): Redirects to `/`
 
 ### `/password-reset`
 
