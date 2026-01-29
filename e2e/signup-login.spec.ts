@@ -12,332 +12,403 @@ function sectionLog(text: string): void {
 	console.log(`\x1b[1;33m${text}\x1b[0m`);
 }
 
-test.describe("Signup and Login Happy Path", () => {
-	test("should complete full signup, logout, and login flow", async ({
-		page,
-	}) => {
-		const mailosaur = new Mailosaur(MAILOSAUR_API_KEY);
-		const testEmail = `test-${Date.now()}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
-		const testPassword = "TestPass123!";
+test.describe
+	.serial("User Authentication Flow", () => {
+		let testEmail: string;
+		let currentPassword: string;
+		let mailosaur: Mailosaur;
+		let signupEmailId: string | undefined;
 
-		sectionLog("1. Access top page");
-		await page.goto("/");
-
-		sectionLog("2. Navigate to signup page via link");
-		await page.getByTestId("signup-link").click();
-		await page.waitForURL("/signup", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		sectionLog("3. Submit signup form with valid email");
-		const signupEmailInput = page.locator("#signup-email");
-		await expect(async () => {
-			await signupEmailInput.fill(testEmail);
-			await expect(signupEmailInput).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
-
-		const signupSubmitButton = page.locator("#signup-submit");
-		await signupSubmitButton.click();
-
-		await expect(page.getByTestId("signup-success-message")).toBeVisible({
-			timeout: 30000,
+		test.beforeAll(() => {
+			mailosaur = new Mailosaur(MAILOSAUR_API_KEY);
+			testEmail = `test-${Date.now()}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
+			currentPassword = "TestPass123!";
 		});
 
-		sectionLog(
-			"4. Retrieve verification email from Mailosaur and extract verification link",
-		);
-		const email = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
-			sentTo: testEmail,
+		test("1. Signup flow", async ({ page }) => {
+			sectionLog("1. Access top page");
+			await page.goto("/");
+
+			sectionLog("2. Navigate to signup page via link");
+			await page.getByTestId("signup-link").click();
+			await page.waitForURL("/signup", { timeout: 10000 });
+			await page.waitForTimeout(1000);
+
+			sectionLog("3. Submit signup form with valid email");
+			const signupEmailInput = page.locator("#signup-email");
+			await expect(async () => {
+				await signupEmailInput.fill(testEmail);
+				await expect(signupEmailInput).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
+
+			const signupSubmitButton = page.locator("#signup-submit");
+			await signupSubmitButton.click();
+
+			await expect(page.getByTestId("signup-success-message")).toBeVisible({
+				timeout: 30000,
+			});
+
+			sectionLog(
+				"4. Retrieve verification email from Mailosaur and extract verification link",
+			);
+			const email = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
+				sentTo: testEmail,
+			});
+			signupEmailId = email.id;
+
+			expect(email.html?.links).toBeDefined();
+			const verifyLink = email.html?.links?.find((link) =>
+				link.href?.includes("/signup/verify"),
+			);
+			expect(verifyLink?.href).toBeDefined();
+
+			sectionLog("5. Access verification link and confirm email is displayed");
+			await page.goto(verifyLink?.href ?? "");
+			await page.waitForTimeout(1000);
+
+			const displayedEmail = page.locator("#signup-verify-email");
+			await expect(displayedEmail).toHaveValue(testEmail);
+
+			sectionLog("6. Set password and complete registration");
+			const signupPasswordInput = page.locator("#signup-verify-password");
+			await expect(async () => {
+				await signupPasswordInput.fill(currentPassword);
+				await expect(signupPasswordInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
+
+			const signupPasswordConfirmInput = page.locator(
+				"#signup-verify-password-confirm",
+			);
+			await expect(async () => {
+				await signupPasswordConfirmInput.fill(currentPassword);
+				await expect(signupPasswordConfirmInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
+
+			const registerButton = page.locator("#signup-verify-submit");
+			await registerButton.click();
+
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
+
+			sectionLog(
+				"7. Verify automatic redirect to top page with email displayed",
+			);
+			await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 		});
 
-		expect(email.html?.links).toBeDefined();
-		const verifyLink = email.html?.links?.find((link) =>
-			link.href?.includes("/signup/verify"),
-		);
-		expect(verifyLink?.href).toBeDefined();
+		test("2. Logout and login flow", async ({ page }) => {
+			sectionLog("8. Login to continue from previous test");
+			await page.goto("/login");
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		sectionLog("5. Access verification link and confirm email is displayed");
-		await page.goto(verifyLink?.href ?? "");
-		await page.waitForTimeout(1000);
+			const loginEmailInput = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput.fill(testEmail);
+				await expect(loginEmailInput).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
+			await page.locator("#login-password").fill(currentPassword);
+			await page.locator("#login-submit").click();
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		const displayedEmail = page.locator("#signup-verify-email");
-		await expect(displayedEmail).toHaveValue(testEmail);
+			sectionLog("9. Navigate to settings page via link");
+			await page.getByTestId("settings-link").click();
+			await page.waitForURL("/settings", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		sectionLog("6. Set password and complete registration");
-		const signupPasswordInput = page.locator("#signup-verify-password");
-		await expect(async () => {
-			await signupPasswordInput.fill(testPassword);
-			await expect(signupPasswordInput).toHaveValue(testPassword);
-		}).toPass({ timeout: 10000 });
+			await expect(page.locator("#settings-email")).toHaveText(testEmail);
 
-		const signupPasswordConfirmInput = page.locator(
-			"#signup-verify-password-confirm",
-		);
-		await expect(async () => {
-			await signupPasswordConfirmInput.fill(testPassword);
-			await expect(signupPasswordConfirmInput).toHaveValue(testPassword);
-		}).toPass({ timeout: 10000 });
+			sectionLog("10. Click logout button and verify redirect to top page");
+			await page.click("#logout-button");
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		const registerButton = page.locator("#signup-verify-submit");
-		await registerButton.click();
+			sectionLog("11. Navigate to login page via link");
+			await page.getByTestId("login-link").click();
+			await page.waitForURL("/login", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			sectionLog("12. Login with email and password");
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		sectionLog("7. Verify automatic redirect to top page with email displayed");
-		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+			const loginEmailInput11 = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput11.fill(testEmail);
+				await expect(loginEmailInput11).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
+			await page.locator("#login-password").fill(currentPassword);
 
-		sectionLog("8. Navigate to settings page via link");
-		await page.getByTestId("settings-link").click();
-		await page.waitForURL("/settings", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			await page.locator("#login-submit").click();
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		await expect(page.locator("#settings-email")).toHaveText(testEmail);
+			await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		sectionLog("9. Click logout button and verify redirect to top page");
-		await page.click("#logout-button");
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		sectionLog("10. Navigate to login page via link");
-		await page.getByTestId("login-link").click();
-		await page.waitForURL("/login", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		sectionLog("11. Login with email and password");
-		await page.waitForSelector("#login-form", { state: "attached" });
-		await page.waitForTimeout(1000);
-
-		const loginEmailInput11 = page.locator("#login-email");
-		await expect(async () => {
-			await loginEmailInput11.fill(testEmail);
-			await expect(loginEmailInput11).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
-		await page.locator("#login-password").fill(testPassword);
-
-		await page.locator("#login-submit").click();
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
-
-		sectionLog("12. Delete signup email before password reset test");
-		if (email.id) {
-			await mailosaur.messages.del(email.id);
-		}
-
-		sectionLog(
-			"13. Navigate to settings and logout again for password reset test",
-		);
-		await page.getByTestId("settings-link").click();
-		await page.waitForURL("/settings", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		await page.click("#logout-button");
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		sectionLog("14. Navigate to password reset page via login page");
-		await page.getByTestId("login-link").click();
-		await page.waitForURL("/login", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		await page.getByTestId("password-reset-link").click();
-		await page.waitForURL("/password-reset", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		sectionLog("15. Submit password reset form");
-		await page.waitForSelector("#password-reset-form", { state: "attached" });
-		await page.waitForTimeout(1000);
-
-		const resetEmailInput = page.locator("#password-reset-email");
-		await expect(async () => {
-			await resetEmailInput.fill(testEmail);
-			await expect(resetEmailInput).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
-		await page.locator("#password-reset-submit").click();
-
-		await expect(
-			page.getByTestId("password-reset-success-message"),
-		).toBeVisible({
-			timeout: 30000,
+			sectionLog("13. Delete signup email before password reset test");
+			if (signupEmailId) {
+				await mailosaur.messages.del(signupEmailId);
+				signupEmailId = undefined;
+			}
 		});
 
-		sectionLog(
-			"16. Retrieve password reset email from Mailosaur and extract reset link",
-		);
-		const resetEmail = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
-			sentTo: testEmail,
+		test("3. Password reset flow", async ({ page }) => {
+			sectionLog("14. Navigate to password reset page via login page");
+			await page.goto("/login");
+			await page.waitForTimeout(1000);
+
+			await page.getByTestId("password-reset-link").click();
+			await page.waitForURL("/password-reset", { timeout: 10000 });
+			await page.waitForTimeout(1000);
+
+			sectionLog("15. Submit password reset form");
+			await page.waitForSelector("#password-reset-form", { state: "attached" });
+			await page.waitForTimeout(1000);
+
+			const resetEmailInput = page.locator("#password-reset-email");
+			await expect(async () => {
+				await resetEmailInput.fill(testEmail);
+				await expect(resetEmailInput).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
+			await page.locator("#password-reset-submit").click();
+
+			await expect(
+				page.getByTestId("password-reset-success-message"),
+			).toBeVisible({
+				timeout: 30000,
+			});
+
+			sectionLog(
+				"16. Retrieve password reset email from Mailosaur and extract reset link",
+			);
+			const resetEmail = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
+				sentTo: testEmail,
+			});
+
+			expect(resetEmail.html?.links).toBeDefined();
+			const resetLink = resetEmail.html?.links?.find((link) =>
+				link.href?.includes("/password-reset/verify"),
+			);
+
+			if (resetEmail.id) {
+				await mailosaur.messages.del(resetEmail.id);
+			}
+
+			sectionLog("17. Access reset link and set new password");
+			await page.goto(resetLink?.href ?? "");
+			await page.waitForTimeout(1000);
+
+			const displayedResetEmail = page.locator("#password-reset-verify-email");
+			await expect(displayedResetEmail).toHaveValue(testEmail);
+
+			const newPassword = "NewTestPass456!";
+
+			const resetPasswordInput = page.locator(
+				"#password-reset-verify-password",
+			);
+			await expect(async () => {
+				await resetPasswordInput.fill(newPassword);
+				await expect(resetPasswordInput).toHaveValue(newPassword);
+			}).toPass({ timeout: 10000 });
+
+			const resetPasswordConfirmInput = page.locator(
+				"#password-reset-verify-password-confirm",
+			);
+			await expect(async () => {
+				await resetPasswordConfirmInput.fill(newPassword);
+				await expect(resetPasswordConfirmInput).toHaveValue(newPassword);
+			}).toPass({ timeout: 10000 });
+
+			const resetSubmitButton = page.locator("#password-reset-verify-submit");
+			await resetSubmitButton.click();
+
+			await page.waitForURL("/login", { timeout: 10000 });
+			await page.waitForTimeout(1000);
+
+			sectionLog("18. Login with new password");
+			const loginEmailInput18 = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput18.fill(testEmail);
+				await expect(loginEmailInput18).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
+
+			const loginPasswordInput = page.locator("#login-password");
+			await expect(async () => {
+				await loginPasswordInput.fill(newPassword);
+				await expect(loginPasswordInput).toHaveValue(newPassword);
+			}).toPass({ timeout: 10000 });
+
+			await page.locator("#login-submit").click();
+
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
+
+			await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+
+			currentPassword = newPassword;
 		});
 
-		expect(resetEmail.html?.links).toBeDefined();
-		const resetLink = resetEmail.html?.links?.find((link) =>
-			link.href?.includes("/password-reset/verify"),
-		);
+		test("4. Password change flow", async ({ page }) => {
+			sectionLog("19. Login to continue");
+			await page.goto("/login");
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		if (resetEmail.id) {
-			await mailosaur.messages.del(resetEmail.id);
-		}
+			const loginEmailInput = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput.fill(testEmail);
+				await expect(loginEmailInput).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
 
-		sectionLog("17. Access reset link and set new password");
-		await page.goto(resetLink?.href ?? "");
-		await page.waitForTimeout(1000);
+			const loginPasswordInput = page.locator("#login-password");
+			await expect(async () => {
+				await loginPasswordInput.fill(currentPassword);
+				await expect(loginPasswordInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
 
-		const displayedResetEmail = page.locator("#password-reset-verify-email");
-		await expect(displayedResetEmail).toHaveValue(testEmail);
+			await page.locator("#login-submit").click();
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		const newPassword = "NewTestPass456!";
+			sectionLog("20. Navigate to settings page for password change test");
+			await page.getByTestId("settings-link").click();
+			await page.waitForURL("/settings", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		const resetPasswordInput = page.locator("#password-reset-verify-password");
-		await expect(async () => {
-			await resetPasswordInput.fill(newPassword);
-			await expect(resetPasswordInput).toHaveValue(newPassword);
-		}).toPass({ timeout: 10000 });
+			sectionLog("21. Change password via settings form");
+			const changedPassword = "ChangedPass789!";
 
-		const resetPasswordConfirmInput = page.locator(
-			"#password-reset-verify-password-confirm",
-		);
-		await expect(async () => {
-			await resetPasswordConfirmInput.fill(newPassword);
-			await expect(resetPasswordConfirmInput).toHaveValue(newPassword);
-		}).toPass({ timeout: 10000 });
+			await page.waitForSelector("#password-change-form", {
+				state: "attached",
+			});
+			await page.waitForTimeout(1000);
 
-		const resetSubmitButton = page.locator("#password-reset-verify-submit");
-		await resetSubmitButton.click();
+			const currentPasswordInput = page.locator("#password-change-current");
+			await expect(async () => {
+				await currentPasswordInput.fill(currentPassword);
+				await expect(currentPasswordInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
 
-		await page.waitForURL("/login", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			const newPasswordInput = page.locator("#password-change-new");
+			await expect(async () => {
+				await newPasswordInput.fill(changedPassword);
+				await expect(newPasswordInput).toHaveValue(changedPassword);
+			}).toPass({ timeout: 10000 });
 
-		sectionLog("18. Login with new password");
-		const loginEmailInput18 = page.locator("#login-email");
-		await expect(async () => {
-			await loginEmailInput18.fill(testEmail);
-			await expect(loginEmailInput18).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
+			const confirmPasswordInput = page.locator("#password-change-new-confirm");
+			await expect(async () => {
+				await confirmPasswordInput.fill(changedPassword);
+				await expect(confirmPasswordInput).toHaveValue(changedPassword);
+			}).toPass({ timeout: 10000 });
 
-		const loginPasswordInput = page.locator("#login-password");
-		await expect(async () => {
-			await loginPasswordInput.fill(newPassword);
-			await expect(loginPasswordInput).toHaveValue(newPassword);
-		}).toPass({ timeout: 10000 });
+			const passwordChangeSubmit = page.locator("#password-change-submit");
+			await passwordChangeSubmit.click();
 
-		await page.locator("#login-submit").click();
+			await expect(
+				page.getByTestId("password-change-success-message"),
+			).toBeVisible({ timeout: 10000 });
 
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			sectionLog("22. Logout after password change");
+			await page.click("#logout-button");
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+			sectionLog("23. Login with changed password");
+			await page.getByTestId("login-link").click();
+			await page.waitForURL("/login", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		sectionLog("19. Navigate to settings page for password change test");
-		await page.getByTestId("settings-link").click();
-		await page.waitForURL("/settings", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		sectionLog("20. Change password via settings form");
-		const changedPassword = "ChangedPass789!";
+			const loginEmailInput22 = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput22.fill(testEmail);
+				await expect(loginEmailInput22).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
 
-		await page.waitForSelector("#password-change-form", { state: "attached" });
-		await page.waitForTimeout(1000);
+			const loginPasswordInput22 = page.locator("#login-password");
+			await expect(async () => {
+				await loginPasswordInput22.fill(changedPassword);
+				await expect(loginPasswordInput22).toHaveValue(changedPassword);
+			}).toPass({ timeout: 10000 });
 
-		const currentPasswordInput = page.locator("#password-change-current");
-		await expect(async () => {
-			await currentPasswordInput.fill(newPassword);
-			await expect(currentPasswordInput).toHaveValue(newPassword);
-		}).toPass({ timeout: 10000 });
+			await page.locator("#login-submit").click();
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		const newPasswordInput = page.locator("#password-change-new");
-		await expect(async () => {
-			await newPasswordInput.fill(changedPassword);
-			await expect(newPasswordInput).toHaveValue(changedPassword);
-		}).toPass({ timeout: 10000 });
+			await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		const confirmPasswordInput = page.locator("#password-change-new-confirm");
-		await expect(async () => {
-			await confirmPasswordInput.fill(changedPassword);
-			await expect(confirmPasswordInput).toHaveValue(changedPassword);
-		}).toPass({ timeout: 10000 });
+			currentPassword = changedPassword;
+		});
 
-		const passwordChangeSubmit = page.locator("#password-change-submit");
-		await passwordChangeSubmit.click();
+		test("5. Account deletion flow", async ({ page }) => {
+			sectionLog("24. Login to continue");
+			await page.goto("/login");
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		await expect(
-			page.getByTestId("password-change-success-message"),
-		).toBeVisible({ timeout: 10000 });
+			const loginEmailInput = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput.fill(testEmail);
+				await expect(loginEmailInput).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
 
-		sectionLog("21. Logout after password change");
-		await page.click("#logout-button");
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			const loginPasswordInput = page.locator("#login-password");
+			await expect(async () => {
+				await loginPasswordInput.fill(currentPassword);
+				await expect(loginPasswordInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
 
-		sectionLog("22. Login with changed password");
-		await page.getByTestId("login-link").click();
-		await page.waitForURL("/login", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			await page.locator("#login-submit").click();
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		await page.waitForSelector("#login-form", { state: "attached" });
-		await page.waitForTimeout(1000);
+			sectionLog("25. Navigate to settings page for account deletion");
+			await page.getByTestId("settings-link").click();
+			await page.waitForURL("/settings", { timeout: 10000 });
 
-		const loginEmailInput22 = page.locator("#login-email");
-		await expect(async () => {
-			await loginEmailInput22.fill(testEmail);
-			await expect(loginEmailInput22).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
+			sectionLog("26. Delete account via settings form");
+			await page.waitForSelector("#account-delete-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		const loginPasswordInput22 = page.locator("#login-password");
-		await expect(async () => {
-			await loginPasswordInput22.fill(changedPassword);
-			await expect(loginPasswordInput22).toHaveValue(changedPassword);
-		}).toPass({ timeout: 10000 });
+			const deletePasswordInput = page.locator("#account-delete-password");
+			await expect(async () => {
+				await deletePasswordInput.fill(currentPassword);
+				await expect(deletePasswordInput).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
 
-		await page.locator("#login-submit").click();
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			const accountDeleteSubmit = page.locator("#account-delete-submit");
+			await accountDeleteSubmit.click();
 
-		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
+			await page.waitForURL("/", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		sectionLog("23. Navigate to settings page for account deletion");
-		await page.getByTestId("settings-link").click();
-		await page.waitForURL("/settings", { timeout: 10000 });
+			sectionLog("27. Verify login with deleted account fails");
+			await page.getByTestId("login-link").click();
+			await page.waitForURL("/login", { timeout: 10000 });
+			await page.waitForTimeout(1000);
 
-		sectionLog("24. Delete account via settings form");
-		await page.waitForSelector("#account-delete-form", { state: "attached" });
-		await page.waitForTimeout(1000);
+			await page.waitForSelector("#login-form", { state: "attached" });
+			await page.waitForTimeout(1000);
 
-		const deletePasswordInput = page.locator("#account-delete-password");
-		await expect(async () => {
-			await deletePasswordInput.fill(changedPassword);
-			await expect(deletePasswordInput).toHaveValue(changedPassword);
-		}).toPass({ timeout: 10000 });
+			const loginEmailInput25 = page.locator("#login-email");
+			await expect(async () => {
+				await loginEmailInput25.fill(testEmail);
+				await expect(loginEmailInput25).toHaveValue(testEmail);
+			}).toPass({ timeout: 10000 });
 
-		const accountDeleteSubmit = page.locator("#account-delete-submit");
-		await accountDeleteSubmit.click();
+			const loginPasswordInput25 = page.locator("#login-password");
+			await expect(async () => {
+				await loginPasswordInput25.fill(currentPassword);
+				await expect(loginPasswordInput25).toHaveValue(currentPassword);
+			}).toPass({ timeout: 10000 });
 
-		await page.waitForURL("/", { timeout: 10000 });
-		await page.waitForTimeout(1000);
+			await page.locator("#login-submit").click();
 
-		sectionLog("25. Verify login with deleted account fails");
-		await page.getByTestId("login-link").click();
-		await page.waitForURL("/login", { timeout: 10000 });
-		await page.waitForTimeout(1000);
-
-		await page.waitForSelector("#login-form", { state: "attached" });
-		await page.waitForTimeout(1000);
-
-		const loginEmailInput25 = page.locator("#login-email");
-		await expect(async () => {
-			await loginEmailInput25.fill(testEmail);
-			await expect(loginEmailInput25).toHaveValue(testEmail);
-		}).toPass({ timeout: 10000 });
-
-		const loginPasswordInput25 = page.locator("#login-password");
-		await expect(async () => {
-			await loginPasswordInput25.fill(changedPassword);
-			await expect(loginPasswordInput25).toHaveValue(changedPassword);
-		}).toPass({ timeout: 10000 });
-
-		await page.locator("#login-submit").click();
-
-		await expect(page.getByTestId("login-error-message")).toBeVisible({
-			timeout: 10000,
+			await expect(page.getByTestId("login-error-message")).toBeVisible({
+				timeout: 10000,
+			});
 		});
 	});
-});
