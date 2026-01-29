@@ -1,3 +1,4 @@
+import AccountDeleteForm from "@/islands/account-delete-form";
 import DarkModeSwitch from "@/islands/dark-mode-switch";
 import LogoutButton from "@/islands/logout-button";
 import PasswordChangeForm from "@/islands/password-change-form";
@@ -25,6 +26,10 @@ export default createAuthenticatedRoute((c) => {
 						</div>
 						<div class="pt-4 border-t">
 							<DarkModeSwitch />
+						</div>
+						<div class="pt-4 border-t">
+							<span class="block text-sm font-medium mb-2">アカウント削除</span>
+							<AccountDeleteForm />
 						</div>
 						<div class="pt-4 border-t">
 							<LogoutButton />

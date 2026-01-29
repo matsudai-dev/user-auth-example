@@ -40,7 +40,7 @@ export default function SignupForm(): JSX.Element {
 	if (status === "success") {
 		return (
 			<div class="text-center">
-				<p class="text-green-600 text-lg">
+				<p data-testid="signup-success-message" class="text-green-600 text-lg">
 					確認メールを送信しました。メールをご確認ください。
 				</p>
 			</div>

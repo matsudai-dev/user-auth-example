@@ -1,9 +1,41 @@
 {
 	"version": "6",
 	"dialect": "sqlite",
-	"id": "c6d322d7-6cdc-41b9-843d-71853a6021f6",
+	"id": "a76fc715-6487-404a-ae8d-2506661a526b",
 	"prevId": "00000000-0000-0000-0000-000000000000",
 	"tables": {
+		"deleted_users": {
+			"name": "deleted_users",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"email": {
+					"name": "email",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"deleted_at": {
+					"name": "deleted_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "(unixepoch())"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {}
+		},
 		"login_rate_limits": {
 			"name": "login_rate_limits",
 			"columns": {

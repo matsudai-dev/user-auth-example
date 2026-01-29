@@ -38,7 +38,10 @@ export default function PasswordResetForm(): JSX.Element {
 	if (status === "success") {
 		return (
 			<div class="text-center">
-				<p class="text-green-600 dark:text-green-400 text-lg">
+				<p
+					data-testid="password-reset-success-message"
+					class="text-green-600 dark:text-green-400 text-lg"
+				>
 					パスワードリセット用のメールを送信しました。メールをご確認ください。
 				</p>
 			</div>

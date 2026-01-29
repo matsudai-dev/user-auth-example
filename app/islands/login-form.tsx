@@ -87,7 +87,11 @@ export default function LoginForm(): JSX.Element {
 					ブラウザの設定によっては、ブラウザを閉じてもログイン状態が維持される場合があります。共有のパソコンをお使いの場合など、確実にログアウトしたい場合は設定画面から手動でログアウトすることをおすすめします。
 				</p>
 			)}
-			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
+			{status === "error" && (
+				<p data-testid="login-error-message" class="text-red-600 text-sm">
+					{errorMessage}
+				</p>
+			)}
 			<Button
 				id="login-submit"
 				type="submit"

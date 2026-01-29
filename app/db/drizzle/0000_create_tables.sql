@@ -1,3 +1,9 @@
+CREATE TABLE `deleted_users` (
+	`id` text PRIMARY KEY NOT NULL,
+	`email` text NOT NULL,
+	`deleted_at` integer DEFAULT (unixepoch()) NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `login_rate_limits` (
 	`email` text PRIMARY KEY NOT NULL,
 	`failed_attempts` integer DEFAULT 0 NOT NULL,
