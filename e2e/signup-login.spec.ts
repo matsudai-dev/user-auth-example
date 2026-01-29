@@ -8,10 +8,8 @@ if (!MAILOSAUR_SERVER_ID || !MAILOSAUR_API_KEY) {
 	throw new Error("Environment variables must be set");
 }
 
-class Section {
-	static log(text: string): void {
-		console.log(`\x1b[1;33m${text}\x1b[0m`);
-	}
+function sectionLog(text: string): void {
+	console.log(`\x1b[1;33m${text}\x1b[0m`);
 }
 
 test.describe("Signup and Login Happy Path", () => {
@@ -22,15 +20,15 @@ test.describe("Signup and Login Happy Path", () => {
 		const testEmail = `test-${Date.now()}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
 		const testPassword = "TestPass123!";
 
-		Section.log("1. Access top page");
+		sectionLog("1. Access top page");
 		await page.goto("/");
 
-		Section.log("2. Navigate to signup page via link");
+		sectionLog("2. Navigate to signup page via link");
 		await page.getByTestId("signup-link").click();
 		await page.waitForURL("/signup", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("3. Submit signup form with valid email");
+		sectionLog("3. Submit signup form with valid email");
 		const signupEmailInput = page.locator("#signup-email");
 		await expect(async () => {
 			await signupEmailInput.fill(testEmail);
@@ -40,11 +38,13 @@ test.describe("Signup and Login Happy Path", () => {
 		const signupSubmitButton = page.locator("#signup-submit");
 		await signupSubmitButton.click();
 
-		await expect(
-			page.locator("text=確認メールを送信しました。メールをご確認ください。"),
-		).toBeVisible({ timeout: 30000 }); // TODO: data-testid を追加する
+		await expect(page.getByTestId("signup-success-message")).toBeVisible({
+			timeout: 30000,
+		});
 
-		Section.log("4. Retrieve verification email from Mailosaur and extract verification link");
+		sectionLog(
+			"4. Retrieve verification email from Mailosaur and extract verification link",
+		);
 		const email = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
 			sentTo: testEmail,
 		});
@@ -55,14 +55,14 @@ test.describe("Signup and Login Happy Path", () => {
 		);
 		expect(verifyLink?.href).toBeDefined();
 
-		Section.log("5. Access verification link and confirm email is displayed");
+		sectionLog("5. Access verification link and confirm email is displayed");
 		await page.goto(verifyLink?.href ?? "");
 		await page.waitForTimeout(1000);
 
 		const displayedEmail = page.locator("#signup-verify-email");
 		await expect(displayedEmail).toHaveValue(testEmail);
 
-		Section.log("6. Set password and complete registration");
+		sectionLog("6. Set password and complete registration");
 		const signupPasswordInput = page.locator("#signup-verify-password");
 		await expect(async () => {
 			await signupPasswordInput.fill(testPassword);
@@ -83,27 +83,27 @@ test.describe("Signup and Login Happy Path", () => {
 		await page.waitForURL("/", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("7. Verify automatic redirect to top page with email displayed");
+		sectionLog("7. Verify automatic redirect to top page with email displayed");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		Section.log("8. Navigate to settings page via link");
+		sectionLog("8. Navigate to settings page via link");
 		await page.getByTestId("settings-link").click();
 		await page.waitForURL("/settings", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
 		await expect(page.locator("#settings-email")).toHaveText(testEmail);
 
-		Section.log("9. Click logout button and verify redirect to top page");
+		sectionLog("9. Click logout button and verify redirect to top page");
 		await page.click("#logout-button");
 		await page.waitForURL("/", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("10. Navigate to login page via link");
+		sectionLog("10. Navigate to login page via link");
 		await page.getByTestId("login-link").click();
 		await page.waitForURL("/login", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("11. Login with email and password");
+		sectionLog("11. Login with email and password");
 		await page.waitForSelector("#login-form", { state: "attached" });
 		await page.waitForTimeout(1000);
 
@@ -120,12 +120,14 @@ test.describe("Signup and Login Happy Path", () => {
 
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		Section.log("12. Delete signup email before password reset test");
+		sectionLog("12. Delete signup email before password reset test");
 		if (email.id) {
 			await mailosaur.messages.del(email.id);
 		}
 
-		Section.log("13. Navigate to settings and logout again for password reset test");
+		sectionLog(
+			"13. Navigate to settings and logout again for password reset test",
+		);
 		await page.getByTestId("settings-link").click();
 		await page.waitForURL("/settings", { timeout: 10000 });
 		await page.waitForTimeout(1000);
@@ -134,16 +136,16 @@ test.describe("Signup and Login Happy Path", () => {
 		await page.waitForURL("/", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("14. Navigate to password reset page via login page");
+		sectionLog("14. Navigate to password reset page via login page");
 		await page.getByTestId("login-link").click();
 		await page.waitForURL("/login", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		await page.click('a[href="/password-reset"]'); // TODO: data-testid を追加する
+		await page.getByTestId("password-reset-link").click();
 		await page.waitForURL("/password-reset", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("15. Submit password reset form");
+		sectionLog("15. Submit password reset form");
 		await page.waitForSelector("#password-reset-form", { state: "attached" });
 		await page.waitForTimeout(1000);
 
@@ -155,12 +157,14 @@ test.describe("Signup and Login Happy Path", () => {
 		await page.locator("#password-reset-submit").click();
 
 		await expect(
-			page.locator(
-				"text=パスワードリセット用のメールを送信しました。メールをご確認ください。",
-			),
-		).toBeVisible({ timeout: 30000 }); // TODO: data-testid を追加する
+			page.getByTestId("password-reset-success-message"),
+		).toBeVisible({
+			timeout: 30000,
+		});
 
-		Section.log("16. Retrieve password reset email from Mailosaur and extract reset link");
+		sectionLog(
+			"16. Retrieve password reset email from Mailosaur and extract reset link",
+		);
 		const resetEmail = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
 			sentTo: testEmail,
 		});
@@ -174,7 +178,7 @@ test.describe("Signup and Login Happy Path", () => {
 			await mailosaur.messages.del(resetEmail.id);
 		}
 
-		Section.log("17. Access reset link and set new password");
+		sectionLog("17. Access reset link and set new password");
 		await page.goto(resetLink?.href ?? "");
 		await page.waitForTimeout(1000);
 
@@ -203,7 +207,7 @@ test.describe("Signup and Login Happy Path", () => {
 		await page.waitForURL("/login", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("18. Login with new password");
+		sectionLog("18. Login with new password");
 		const loginEmailInput18 = page.locator("#login-email");
 		await expect(async () => {
 			await loginEmailInput18.fill(testEmail);
@@ -223,12 +227,12 @@ test.describe("Signup and Login Happy Path", () => {
 
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		Section.log("19. Navigate to settings page for password change test");
+		sectionLog("19. Navigate to settings page for password change test");
 		await page.getByTestId("settings-link").click();
 		await page.waitForURL("/settings", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("20. Change password via settings form");
+		sectionLog("20. Change password via settings form");
 		const changedPassword = "ChangedPass789!";
 
 		await page.waitForSelector("#password-change-form", { state: "attached" });
@@ -255,16 +259,16 @@ test.describe("Signup and Login Happy Path", () => {
 		const passwordChangeSubmit = page.locator("#password-change-submit");
 		await passwordChangeSubmit.click();
 
-		await expect(page.locator("text=パスワードを変更しました")).toBeVisible({
-			timeout: 10000,
-		}); // TODO: data-testid を追加する
+		await expect(
+			page.getByTestId("password-change-success-message"),
+		).toBeVisible({ timeout: 10000 });
 
-		Section.log("21. Logout after password change");
+		sectionLog("21. Logout after password change");
 		await page.click("#logout-button");
 		await page.waitForURL("/", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("22. Login with changed password");
+		sectionLog("22. Login with changed password");
 		await page.getByTestId("login-link").click();
 		await page.waitForURL("/login", { timeout: 10000 });
 		await page.waitForTimeout(1000);
@@ -290,11 +294,11 @@ test.describe("Signup and Login Happy Path", () => {
 
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		Section.log("23. Navigate to settings page for account deletion");
+		sectionLog("23. Navigate to settings page for account deletion");
 		await page.getByTestId("settings-link").click();
 		await page.waitForURL("/settings", { timeout: 10000 });
 
-		Section.log("24. Delete account via settings form");
+		sectionLog("24. Delete account via settings form");
 		await page.waitForSelector("#account-delete-form", { state: "attached" });
 		await page.waitForTimeout(1000);
 
@@ -310,7 +314,7 @@ test.describe("Signup and Login Happy Path", () => {
 		await page.waitForURL("/", { timeout: 10000 });
 		await page.waitForTimeout(1000);
 
-		Section.log("25. Verify login with deleted account fails");
+		sectionLog("25. Verify login with deleted account fails");
 		await page.getByTestId("login-link").click();
 		await page.waitForURL("/login", { timeout: 10000 });
 		await page.waitForTimeout(1000);
@@ -332,10 +336,8 @@ test.describe("Signup and Login Happy Path", () => {
 
 		await page.locator("#login-submit").click();
 
-		await expect(
-			page.locator("text=メールアドレスまたはパスワードが正しくありません"),
-		).toBeVisible({
+		await expect(page.getByTestId("login-error-message")).toBeVisible({
 			timeout: 10000,
-		}); // TODO: data-testid を追加する
+		});
 	});
 });

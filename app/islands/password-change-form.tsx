@@ -154,7 +154,12 @@ export default function PasswordChangeForm({ email }: Props) {
 
 			{status === "error" && <p class="text-red-600 text-sm">{errorMessage}</p>}
 			{status === "success" && (
-				<p class="text-green-600 text-sm">パスワードを変更しました</p>
+				<p
+					data-testid="password-change-success-message"
+					class="text-green-600 text-sm"
+				>
+					パスワードを変更しました
+				</p>
 			)}
 
 			<Button

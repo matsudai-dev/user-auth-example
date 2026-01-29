@@ -20,6 +20,7 @@ export default createRoute((c) => {
 					</p>
 					<p class="mt-2 text-center text-sm">
 						<a
+							data-testid="password-reset-link"
 							href="/password-reset"
 							class="text-blue-600 dark:text-blue-400 hover:underline"
 						>
