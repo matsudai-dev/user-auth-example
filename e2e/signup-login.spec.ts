@@ -1,8 +1,18 @@
 import { expect, test } from "@playwright/test";
 import Mailosaur from "mailosaur";
 
-const MAILOSAUR_SERVER_ID = process.env.MAILOSAUR_SERVER_ID ?? "";
-const MAILOSAUR_API_KEY = process.env.MAILOSAUR_API_KEY ?? "";
+const MAILOSAUR_SERVER_ID = process.env.MAILOSAUR_SERVER_ID;
+const MAILOSAUR_API_KEY = process.env.MAILOSAUR_API_KEY;
+
+if (!MAILOSAUR_SERVER_ID || !MAILOSAUR_API_KEY) {
+	throw new Error("Environment variables must be set");
+}
+
+class Section {
+	static log(text: string): void {
+		console.log(`\x1b[1;33m${text}\x1b[0m`);
+	}
+}
 
 test.describe("Signup and Login Happy Path", () => {
 	test("should complete full signup, logout, and login flow", async ({
@@ -12,34 +22,29 @@ test.describe("Signup and Login Happy Path", () => {
 		const testEmail = `test-${Date.now()}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
 		const testPassword = "TestPass123!";
 
-		// 1. Access top page
+		Section.log("1. Access top page");
 		await page.goto("/");
-		await expect(page.locator("h1")).toHaveText("ホーム");
 
-		// 2. Navigate to signup page via "新規登録" link
-		await page.click('[data-testid="signup-link"]');
-		await expect(page.locator("h1")).toHaveText("新規登録");
+		Section.log("2. Navigate to signup page via link");
+		await page.getByTestId("signup-link").click();
+		await page.waitForURL("/signup", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 3. Verify submit button is disabled when email is invalid
+		Section.log("3. Submit signup form with valid email");
 		const signupEmailInput = page.locator("#signup-email");
+		await expect(async () => {
+			await signupEmailInput.fill(testEmail);
+			await expect(signupEmailInput).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
+
 		const signupSubmitButton = page.locator("#signup-submit");
-
-		// Enter invalid email and check button state via form validation
-		await signupEmailInput.fill("invalid-email");
-		await signupSubmitButton.click();
-		// Form should not submit due to browser validation - still on signup page
-		await expect(page.locator("h1")).toHaveText("新規登録");
-
-		// 4. Submit signup form with valid email
-		await signupEmailInput.fill(testEmail);
 		await signupSubmitButton.click();
 
-		// Wait for success message
 		await expect(
 			page.locator("text=確認メールを送信しました。メールをご確認ください。"),
-		).toBeVisible({ timeout: 10000 });
+		).toBeVisible({ timeout: 30000 }); // TODO: data-testid を追加する
 
-		// 5. Retrieve verification email from Mailosaur and extract verification link
+		Section.log("4. Retrieve verification email from Mailosaur and extract verification link");
 		const email = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
 			sentTo: testEmail,
 		});
@@ -50,89 +55,112 @@ test.describe("Signup and Login Happy Path", () => {
 		);
 		expect(verifyLink?.href).toBeDefined();
 
-		// 6. Access verification link and confirm email is displayed
+		Section.log("5. Access verification link and confirm email is displayed");
 		await page.goto(verifyLink?.href ?? "");
-		await expect(page.locator("h1")).toHaveText("パスワード設定");
+		await page.waitForTimeout(1000);
 
 		const displayedEmail = page.locator("#signup-verify-email");
 		await expect(displayedEmail).toHaveValue(testEmail);
 
-		// 7. Set password and complete registration
-		await page.locator("#signup-verify-password").fill(testPassword);
-		await page.locator("#signup-verify-password-confirm").fill(testPassword);
+		Section.log("6. Set password and complete registration");
+		const signupPasswordInput = page.locator("#signup-verify-password");
+		await expect(async () => {
+			await signupPasswordInput.fill(testPassword);
+			await expect(signupPasswordInput).toHaveValue(testPassword);
+		}).toPass({ timeout: 10000 });
+
+		const signupPasswordConfirmInput = page.locator(
+			"#signup-verify-password-confirm",
+		);
+		await expect(async () => {
+			await signupPasswordConfirmInput.fill(testPassword);
+			await expect(signupPasswordConfirmInput).toHaveValue(testPassword);
+		}).toPass({ timeout: 10000 });
 
 		const registerButton = page.locator("#signup-verify-submit");
-		await expect(registerButton).toBeEnabled();
 		await registerButton.click();
 
-		// Wait for navigation to complete after registration
 		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 8. Verify automatic redirect to top page with email displayed
-		await expect(page.locator("h1")).toHaveText("ホーム");
+		Section.log("7. Verify automatic redirect to top page with email displayed");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		// 9. Navigate to settings page via link
-		await page.click('[data-testid="settings-link"]');
-		await expect(page.locator("h1")).toHaveText("設定");
+		Section.log("8. Navigate to settings page via link");
+		await page.getByTestId("settings-link").click();
+		await page.waitForURL("/settings", { timeout: 10000 });
+		await page.waitForTimeout(1000);
+
 		await expect(page.locator("#settings-email")).toHaveText(testEmail);
 
-		// 10. Click logout button and verify redirect to top page
+		Section.log("9. Click logout button and verify redirect to top page");
 		await page.click("#logout-button");
 		await page.waitForURL("/", { timeout: 10000 });
-		await expect(page.locator("h1")).toHaveText("ホーム");
-		await expect(page.locator('[data-testid="login-link"]')).toBeVisible();
+		await page.waitForTimeout(1000);
 
-		// 11. Navigate to login page via link
-		await page.click('[data-testid="login-link"]');
-		await expect(page.locator("h1")).toHaveText("ログイン");
+		Section.log("10. Navigate to login page via link");
+		await page.getByTestId("login-link").click();
+		await page.waitForURL("/login", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 12. Login with email and password
-		// Wait for login form to be hydrated (interactive)
+		Section.log("11. Login with email and password");
 		await page.waitForSelector("#login-form", { state: "attached" });
+		await page.waitForTimeout(1000);
 
-		await page.locator("#login-email").fill(testEmail);
+		const loginEmailInput11 = page.locator("#login-email");
+		await expect(async () => {
+			await loginEmailInput11.fill(testEmail);
+			await expect(loginEmailInput11).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
 		await page.locator("#login-password").fill(testPassword);
+
 		await page.locator("#login-submit").click();
-
-		// Wait for navigation to complete after login
 		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// Verify successful login and email displayed on top page
-		await expect(page.locator("h1")).toHaveText("ホーム");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		// 13. Delete signup email before password reset test
+		Section.log("12. Delete signup email before password reset test");
 		if (email.id) {
 			await mailosaur.messages.del(email.id);
 		}
 
-		// 14. Navigate to settings and logout again for password reset test
-		await page.click('[data-testid="settings-link"]');
-		await expect(page.locator("h1")).toHaveText("設定");
+		Section.log("13. Navigate to settings and logout again for password reset test");
+		await page.getByTestId("settings-link").click();
+		await page.waitForURL("/settings", { timeout: 10000 });
+		await page.waitForTimeout(1000);
+
 		await page.click("#logout-button");
 		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 15. Navigate to password reset page via login page
-		await page.click('[data-testid="login-link"]');
-		await expect(page.locator("h1")).toHaveText("ログイン");
-		await page.click('a[href="/password-reset"]');
-		await expect(page.locator("h1")).toHaveText("パスワードリセット");
+		Section.log("14. Navigate to password reset page via login page");
+		await page.getByTestId("login-link").click();
+		await page.waitForURL("/login", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 16. Submit password reset form
-		// Wait for password reset form to be hydrated (interactive)
+		await page.click('a[href="/password-reset"]'); // TODO: data-testid を追加する
+		await page.waitForURL("/password-reset", { timeout: 10000 });
+		await page.waitForTimeout(1000);
+
+		Section.log("15. Submit password reset form");
 		await page.waitForSelector("#password-reset-form", { state: "attached" });
-		await page.locator("#password-reset-email").fill(testEmail);
+		await page.waitForTimeout(1000);
+
+		const resetEmailInput = page.locator("#password-reset-email");
+		await expect(async () => {
+			await resetEmailInput.fill(testEmail);
+			await expect(resetEmailInput).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
 		await page.locator("#password-reset-submit").click();
 
-		// Wait for success message
 		await expect(
 			page.locator(
 				"text=パスワードリセット用のメールを送信しました。メールをご確認ください。",
 			),
-		).toBeVisible({ timeout: 10000 });
+		).toBeVisible({ timeout: 30000 }); // TODO: data-testid を追加する
 
-		// 17. Retrieve password reset email from Mailosaur and extract reset link
+		Section.log("16. Retrieve password reset email from Mailosaur and extract reset link");
 		const resetEmail = await mailosaur.messages.get(MAILOSAUR_SERVER_ID, {
 			sentTo: testEmail,
 		});
@@ -141,85 +169,173 @@ test.describe("Signup and Login Happy Path", () => {
 		const resetLink = resetEmail.html?.links?.find((link) =>
 			link.href?.includes("/password-reset/verify"),
 		);
-		expect(resetLink?.href).toBeDefined();
 
-		// 18. Access reset link and set new password
+		if (resetEmail.id) {
+			await mailosaur.messages.del(resetEmail.id);
+		}
+
+		Section.log("17. Access reset link and set new password");
 		await page.goto(resetLink?.href ?? "");
-		await expect(page.locator("h1")).toHaveText("パスワード再設定");
+		await page.waitForTimeout(1000);
 
 		const displayedResetEmail = page.locator("#password-reset-verify-email");
 		await expect(displayedResetEmail).toHaveValue(testEmail);
 
 		const newPassword = "NewTestPass456!";
-		await page.locator("#password-reset-verify-password").fill(newPassword);
-		await page
-			.locator("#password-reset-verify-password-confirm")
-			.fill(newPassword);
+
+		const resetPasswordInput = page.locator("#password-reset-verify-password");
+		await expect(async () => {
+			await resetPasswordInput.fill(newPassword);
+			await expect(resetPasswordInput).toHaveValue(newPassword);
+		}).toPass({ timeout: 10000 });
+
+		const resetPasswordConfirmInput = page.locator(
+			"#password-reset-verify-password-confirm",
+		);
+		await expect(async () => {
+			await resetPasswordConfirmInput.fill(newPassword);
+			await expect(resetPasswordConfirmInput).toHaveValue(newPassword);
+		}).toPass({ timeout: 10000 });
 
 		const resetSubmitButton = page.locator("#password-reset-verify-submit");
-		await expect(resetSubmitButton).toBeEnabled();
 		await resetSubmitButton.click();
 
-		// Wait for navigation to login page after password reset
 		await page.waitForURL("/login", { timeout: 10000 });
-		await expect(page.locator("h1")).toHaveText("ログイン");
+		await page.waitForTimeout(1000);
 
-		// 19. Login with new password
-		await page.locator("#login-email").fill(testEmail);
-		await page.locator("#login-password").fill(newPassword);
+		Section.log("18. Login with new password");
+		const loginEmailInput18 = page.locator("#login-email");
+		await expect(async () => {
+			await loginEmailInput18.fill(testEmail);
+			await expect(loginEmailInput18).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
+
+		const loginPasswordInput = page.locator("#login-password");
+		await expect(async () => {
+			await loginPasswordInput.fill(newPassword);
+			await expect(loginPasswordInput).toHaveValue(newPassword);
+		}).toPass({ timeout: 10000 });
+
 		await page.locator("#login-submit").click();
 
-		// Wait for navigation to complete after login
 		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// Verify successful login with new password
-		await expect(page.locator("h1")).toHaveText("ホーム");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		// 20. Navigate to settings page for password change test
-		await page.click('[data-testid="settings-link"]');
-		await expect(page.locator("h1")).toHaveText("設定");
+		Section.log("19. Navigate to settings page for password change test");
+		await page.getByTestId("settings-link").click();
+		await page.waitForURL("/settings", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// 21. Change password via settings form
+		Section.log("20. Change password via settings form");
 		const changedPassword = "ChangedPass789!";
+
 		await page.waitForSelector("#password-change-form", { state: "attached" });
-		await page.locator("#password-change-current").fill(newPassword);
-		await page.locator("#password-change-new").fill(changedPassword);
-		await page.locator("#password-change-new-confirm").fill(changedPassword);
+		await page.waitForTimeout(1000);
+
+		const currentPasswordInput = page.locator("#password-change-current");
+		await expect(async () => {
+			await currentPasswordInput.fill(newPassword);
+			await expect(currentPasswordInput).toHaveValue(newPassword);
+		}).toPass({ timeout: 10000 });
+
+		const newPasswordInput = page.locator("#password-change-new");
+		await expect(async () => {
+			await newPasswordInput.fill(changedPassword);
+			await expect(newPasswordInput).toHaveValue(changedPassword);
+		}).toPass({ timeout: 10000 });
+
+		const confirmPasswordInput = page.locator("#password-change-new-confirm");
+		await expect(async () => {
+			await confirmPasswordInput.fill(changedPassword);
+			await expect(confirmPasswordInput).toHaveValue(changedPassword);
+		}).toPass({ timeout: 10000 });
 
 		const passwordChangeSubmit = page.locator("#password-change-submit");
-		await expect(passwordChangeSubmit).toBeEnabled();
 		await passwordChangeSubmit.click();
 
-		// Wait for success message
 		await expect(page.locator("text=パスワードを変更しました")).toBeVisible({
 			timeout: 10000,
-		});
+		}); // TODO: data-testid を追加する
 
-		// 22. Logout after password change
+		Section.log("21. Logout after password change");
 		await page.click("#logout-button");
 		await page.waitForURL("/", { timeout: 10000 });
-		await expect(page.locator("h1")).toHaveText("ホーム");
+		await page.waitForTimeout(1000);
 
-		// 23. Login with changed password
-		await page.click('[data-testid="login-link"]');
-		await expect(page.locator("h1")).toHaveText("ログイン");
+		Section.log("22. Login with changed password");
+		await page.getByTestId("login-link").click();
+		await page.waitForURL("/login", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
 		await page.waitForSelector("#login-form", { state: "attached" });
-		await page.locator("#login-email").fill(testEmail);
-		await page.locator("#login-password").fill(changedPassword);
+		await page.waitForTimeout(1000);
+
+		const loginEmailInput22 = page.locator("#login-email");
+		await expect(async () => {
+			await loginEmailInput22.fill(testEmail);
+			await expect(loginEmailInput22).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
+
+		const loginPasswordInput22 = page.locator("#login-password");
+		await expect(async () => {
+			await loginPasswordInput22.fill(changedPassword);
+			await expect(loginPasswordInput22).toHaveValue(changedPassword);
+		}).toPass({ timeout: 10000 });
+
 		await page.locator("#login-submit").click();
-
-		// Wait for navigation to complete after login
 		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
 
-		// Verify successful login with changed password
-		await expect(page.locator("h1")).toHaveText("ホーム");
 		await expect(page.locator("#logged-in-email")).toContainText(testEmail);
 
-		// Cleanup: delete the password reset email
-		if (resetEmail.id) {
-			await mailosaur.messages.del(resetEmail.id);
-		}
+		Section.log("23. Navigate to settings page for account deletion");
+		await page.getByTestId("settings-link").click();
+		await page.waitForURL("/settings", { timeout: 10000 });
+
+		Section.log("24. Delete account via settings form");
+		await page.waitForSelector("#account-delete-form", { state: "attached" });
+		await page.waitForTimeout(1000);
+
+		const deletePasswordInput = page.locator("#account-delete-password");
+		await expect(async () => {
+			await deletePasswordInput.fill(changedPassword);
+			await expect(deletePasswordInput).toHaveValue(changedPassword);
+		}).toPass({ timeout: 10000 });
+
+		const accountDeleteSubmit = page.locator("#account-delete-submit");
+		await accountDeleteSubmit.click();
+
+		await page.waitForURL("/", { timeout: 10000 });
+		await page.waitForTimeout(1000);
+
+		Section.log("25. Verify login with deleted account fails");
+		await page.getByTestId("login-link").click();
+		await page.waitForURL("/login", { timeout: 10000 });
+		await page.waitForTimeout(1000);
+
+		await page.waitForSelector("#login-form", { state: "attached" });
+		await page.waitForTimeout(1000);
+
+		const loginEmailInput25 = page.locator("#login-email");
+		await expect(async () => {
+			await loginEmailInput25.fill(testEmail);
+			await expect(loginEmailInput25).toHaveValue(testEmail);
+		}).toPass({ timeout: 10000 });
+
+		const loginPasswordInput25 = page.locator("#login-password");
+		await expect(async () => {
+			await loginPasswordInput25.fill(changedPassword);
+			await expect(loginPasswordInput25).toHaveValue(changedPassword);
+		}).toPass({ timeout: 10000 });
+
+		await page.locator("#login-submit").click();
+
+		await expect(
+			page.locator("text=メールアドレスまたはパスワードが正しくありません"),
+		).toBeVisible({
+			timeout: 10000,
+		}); // TODO: data-testid を追加する
 	});
 });

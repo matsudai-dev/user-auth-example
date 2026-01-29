@@ -91,6 +91,12 @@ For all GitHub operations (creating issues, pull requests, searching code, etc.)
 - Always reference the related issue with `Closes #n`
 - Mark test plan items as completed `[x]` after verification
 
+## E2E testing guidelines
+
+- **Never pollute source code for E2E tests**: Do not add code to production source files solely for E2E test purposes (e.g., adding `data-hydrated` attributes via `useEffect` , test-only flags, or markers)
+- E2E tests must work with the production code as-is
+- If timing issues occur (e.g., hydration), solve them within the test code using Playwright's built-in waiting mechanisms
+
 ## Development workflows
 
 ### Plan A

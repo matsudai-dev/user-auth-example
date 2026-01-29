@@ -95,3 +95,13 @@ export const passwordResetSessionsTable = sqliteTable(
 		expiresAt: timestamp("expires_at").notNull(),
 	},
 );
+
+/** `deleted_users` table schema definition */
+export const deletedUsersTable = sqliteTable("deleted_users", {
+	/** Original user ID (UUIDv7) */
+	id: text("id").primaryKey(),
+	/** User's email address at time of deletion */
+	email: text("email").notNull(),
+	/** Timestamp of deletion */
+	deletedAt: timestamp("deleted_at").notNull().default(now()),
+});

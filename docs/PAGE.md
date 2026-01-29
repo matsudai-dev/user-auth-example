@@ -105,12 +105,15 @@ User settings page for managing account.
     - New password confirmation input field
         - Must match new password field
     - Submit button ("変更する")
+- Account deletion form:
+    - Password input field for confirmation
+    - Delete button ("アカウントを削除")
 - Logout button
 
 #### Behavior
 1. `createAuthenticatedRoute` middleware validates authentication
 2. If validation fails: Redirects to `/login?redirect=%2Fsettings`
-3. If validation succeeds: Displays user's email address, password change form, and logout button
+3. If validation succeeds: Displays user's email address, password change form, account deletion form, and logout button
 
 Password change:
 1. User enters current password
@@ -120,6 +123,13 @@ Password change:
 5. Calls `POST /api/v1/password-change` with current and new password
 6. On success (200): Displays success message and clears form
 7. On error: Displays appropriate error message
+
+Account deletion:
+1. User enters password for confirmation
+2. User clicks delete button
+3. Calls `DELETE /api/v1/account` with password
+4. On success (200): Redirects to `/`
+5. On error: Displays appropriate error message
 
 Logout:
 1. User clicks logout button

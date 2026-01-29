@@ -6,7 +6,6 @@ import {
 	LOGIN_LOCK_DURATION_MS,
 	LOGIN_MAX_ATTEMPTS,
 	LOGIN_RATE_LIMIT_EXPIRATION_MS,
-	NOT_FOUND,
 	OK,
 	REFRESH_TOKEN_EXPIRATION_MS,
 	TOO_MANY_REQUESTS,
@@ -65,7 +64,8 @@ export const route = createHonoApp().post(
 			.get();
 
 		if (!user) {
-			return c.text(NOT_FOUND, 404);
+			// Return 401 instead of 404 to prevent account enumeration attacks
+			return c.text(UNAUTHORIZED, 401);
 		}
 
 		const now = new Date();

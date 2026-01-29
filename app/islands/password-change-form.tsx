@@ -29,15 +29,27 @@ export default function PasswordChangeForm({ email }: Props) {
 	const validation = validatePassword(newPassword, email);
 	const passwordsMatch =
 		newPassword === newPasswordConfirm && newPassword.length > 0;
-	const canSubmit =
-		currentPassword.length > 0 &&
-		validation.isValid &&
-		passwordsMatch &&
-		status !== "loading";
 
 	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
-		if (!canSubmit) return;
+		if (status === "loading") return;
+
+		// Validate before submission
+		if (currentPassword.length === 0) {
+			setStatus("error");
+			setErrorMessage("現在のパスワードを入力してください");
+			return;
+		}
+		if (!validation.isValid) {
+			setStatus("error");
+			setErrorMessage("新しいパスワードが要件を満たしていません");
+			return;
+		}
+		if (!passwordsMatch) {
+			setStatus("error");
+			setErrorMessage("新しいパスワードが一致しません");
+			return;
+		}
 
 		setStatus("loading");
 		setErrorMessage("");
@@ -150,7 +162,7 @@ export default function PasswordChangeForm({ email }: Props) {
 				type="submit"
 				color="primary"
 				fullWidth
-				disabled={!canSubmit}
+				disabled={status === "loading"}
 			>
 				{status === "loading" ? "変更中..." : "変更する"}
 			</Button>

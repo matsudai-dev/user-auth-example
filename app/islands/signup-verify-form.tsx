@@ -28,12 +28,22 @@ export default function SignupVerifyForm({ email, token }: Props) {
 
 	const validation = validatePassword(password, email);
 	const passwordsMatch = password === passwordConfirm && password.length > 0;
-	const canSubmit =
-		validation.isValid && passwordsMatch && status !== "loading";
 
 	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
-		if (!canSubmit) return;
+		if (status === "loading") return;
+
+		// Validate before submission
+		if (!validation.isValid) {
+			setStatus("error");
+			setErrorMessage("パスワードが要件を満たしていません");
+			return;
+		}
+		if (!passwordsMatch) {
+			setStatus("error");
+			setErrorMessage("パスワードが一致しません");
+			return;
+		}
 
 		setStatus("loading");
 		setErrorMessage("");
@@ -152,7 +162,7 @@ export default function SignupVerifyForm({ email, token }: Props) {
 				type="submit"
 				color="primary"
 				fullWidth
-				disabled={!canSubmit}
+				disabled={status === "loading"}
 			>
 				{status === "loading" ? "登録中..." : "登録する"}
 			</Button>

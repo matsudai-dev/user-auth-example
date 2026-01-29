@@ -40,8 +40,6 @@ export const route = createHonoApp().post(
 	async (c) => {
 		const { email } = c.req.valid("json");
 
-		console.log("Password reset requested for email:", email);
-
 		const db = getDBClient(c.env.DB);
 
 		const user = await db
@@ -52,7 +50,6 @@ export const route = createHonoApp().post(
 
 		// Always return 200 to prevent user enumeration
 		if (!user) {
-			console.log("No user found with email:", email);
 			return c.text(OK, 200);
 		}
 
@@ -84,8 +81,6 @@ export const route = createHonoApp().post(
 			tokenHash,
 			expiresAt,
 		});
-
-		console.log("Created password reset session for email:", email);
 
 		const resend = getEmailClient(c.env.RESEND_API_KEY);
 
